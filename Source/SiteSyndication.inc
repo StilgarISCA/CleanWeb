@@ -27,7 +27,7 @@ class SiteSyndication
       return $domObj;
    } // end loadPageDom()
    
-   public function getSiteFeeds()
+   public function getFeeds()
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
       
@@ -36,6 +36,6 @@ class SiteSyndication
                || $elements->item(0)->getAttribute( 'href' ) == null )
       ) 
          return $elements->item(0)->getAttribute( 'href' ); 
-   } // end getSiteFeeds()
+   } // end getFeeds()
 } // end SiteSyndication()
 ?>

@@ -7,6 +7,7 @@
 #
 echo "Publishing..."
 cp -r ~/Projects/CleanWeb/Source/ ~/Sites
+cp -r ~/Projects/CleanWeb/IntegrationTests/ ~/Sites
 echo "Done."
 echo "Setting permissions..."
 chmod -R +rx ~/Sites
