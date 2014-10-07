@@ -383,20 +383,4 @@ print "  <input type=\"hidden\" name=\"perform\" value=\"getrss\" />\n";
    
    return;
 } // end print_url_form() 
-
-/***************************************************************************
-Function: starts_with( str, str )
-Accepts: string, string to match
-Returns: true on match, false otherwise
-
-Description:
-See if a string starts with another string.
-
-Adapted from:
-http://stackoverflow.com/questions/834303/php-startswith-and-endswith-functions
-***************************************************************************/
-function starts_with( $haystack, $needle )
-{
-    return !strncmp( $haystack, $needle, strlen( $needle ) );
-} // end starts_with()
 ?>
