@@ -52,13 +52,13 @@ define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
       $url = urldecode( base64_decode( $_GET['page'] ) );
       //if( !starts_with( $url, 'http://' ) || !starts_with( $url, 'https://' ) )
       //   $url = "http://$url"; // todo does this need to be escaped?
-      $rss_url = get_rss_link_from_page( $url );
-      if ( $rss_url == '' ) {
+      $siteSyndication = new SiteSyndication( $url );
+      if ( $siteSyndication->getFeeds() == '' ) {
          $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
          print "<h1>RSS not found</h1><p>URL: $url";
          exit();
       }
-      $rss_feed = get_url_contents( $rss_url );
+      $rss_feed = get_url_contents( $siteSyndication->getFeeds() );
       $rss_data_ary = parse_rss_feed( $rss_feed );
       print_homepage( $rss_data_ary );
    } else {
@@ -175,31 +175,6 @@ function dnl2array( $domnodelist ) {
    */
    return $foo;
 }
-
-/***************************************************************************
-Function: get_rss_link_from_page( $html )
-Accepts: the page to be parsed
-Returns: parsed url on success, empty string otherwise
-
-Description:
-Use xpath to retreive the FIRST rss/xml link out of a given page.
-
-***************************************************************************/
-function get_rss_link_from_page( $html )
-{
-   
-   $domObj = new domDocument();
-   libxml_use_internal_errors( true );
-   $domObj->loadHtmlFile( $html );
-      
-   $xpath = new DomXPath( $domObj );
-   $elements = $xpath->query( "/html/head/link[@type='application/rss+xml']" );
-
-   if( $elements->length > 0 && ( $elements->item(0)->getAttribute( 'href' ) != '' || $elements->item(0)->getAttribute( 'href' ) == null ) )
-      return $elements->item(0)->getAttribute( 'href' ); 
-
-   return ''; 
-} // end get_rss_link_from_page()
 
 /***************************************************************************
 Function: clean_html_page( html )
