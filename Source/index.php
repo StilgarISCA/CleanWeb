@@ -10,48 +10,20 @@ Description:
 Parse RSS Feeds and display the list of descriptions/links.  Links clicked
 by the user are "cleaned" and sent back to the client.
 
-#TODO:
-1.) Display list of RSS links
-2.) Add ability to add RSS feeds
-3.) Display only relavent content
-4.) Consolidate content split over multiple pages
-5.) Make google-like homepage
-6.) Some sites use relative pathing, so next link is directed toward teh wrong site
-7.) Blank pages show up if a page is only an ad or video
-8.) Auto-detect urls inside returned codes and make them link properly (might be hard with bit.ly-type links)
-10.) Add url button to any page - DONE
-11.) Try to prevent injection by sanitizing submit input
-12.) auto-append http:// to submitted links - DONE
-13.) If there is no RSS Found, just dump the page content
-14.) The site is dumping text that isn't inside tags. I think I could get rid of more garbage if there's a way to strip it out.
 ***************************************************************************/
-define("HOST_DOMAIN", "http://www.yakhair.com");
+define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
 define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
-//define("TARGET_RSS_FEED", "http://rss.cnn.com/rss/cnn_topstories.rss");
-//define('TARGET_RSS_FEED', 'http://feeds.computerworld.com/s/feed/type/News');
+
+require_once( './SiteSyndication.inc' );
+
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
       $html_page = get_url_contents( $url );
-      $cleaned_page = clean_html_page( $html_page );
-      /* end old way */
-      // new way
-      // get domnode list
-      //$domnodelist = get_domnodelist_from_url( $url );
-      // convert to array
-      //$html_ary = dnl2array( $domnodelist );
-      // parse
-      //print "<h1>count ". count( $html_ary ) . "</h1>";
-      //print_r( $html_ary );
-      //print "<h1>1</h1>" . $html_ary[0];
-      //print "<hr/><h1>2</h1>" . $html_ary[1];
-      //print "<hr/><h1>3</h1>" . $html_ary[2];
-      
+      $cleaned_page = clean_html_page( $html_page );    
       $additional_pages = find_additional_pages( $html_page );
       print_single_page( $cleaned_page, $_GET['title'], $additional_pages );
    } elseif( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
-      //if( !starts_with( $url, 'http://' ) || !starts_with( $url, 'https://' ) )
-      //   $url = "http://$url"; // todo does this need to be escaped?
       $siteSyndication = new SiteSyndication( $url );
       if ( $siteSyndication->getFeeds() == '' ) {
          $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
@@ -94,87 +66,6 @@ function find_additional_pages( $html )
       
    return $url;
 } // end find_additional_pages()
-
-function parse_p_tags( $html )
-{
-   $domObj = new domDocument();
-   
-   @$domObj->loadHTML( $html );
-   $domObj->preserveWhiteSpace = false;
-   
-   $p_tags = $domObj->getElementsByTagName( 'p' );
-   
-   //TODO: use xpath instead?
-   
-   $return_value;
-   
-   foreach ( $p_tags as $p ) {
-      // Don't add empty p tags or p tags that contain less than one word to the return list
-      if ( $p->nodeValue != '' && ( str_word_count( $p->nodeValue, 0 ) > 1 ) )
-         $return_value .= '<p>' . str_word_count( $p->nodeValue, 0 ) .': '. $p->nodeValue . '</p>';
-   }
-   
-   return $return_value;
-
-} // end function parse_p_tags()
-
-function recurse_dom( $url )
-{
-      $domObj = new domDocument();
-   
-   @$domObj->loadHTML( $url );
-   $domObj->preserveWhiteSpace = false;
-   
-   $p_tags = $domObj->getElementsByTagName( 'p' );
-
-}
-
-function get_domnodelist_from_url( $url )
-{
-   $domObj = new domDocument();
-   
-   @$domObj->loadHTML( $url );
-   $domObj->preserveWhiteSpace = false;
-   
-   //return $domObj;
-   $domnodelist = $domObj->getElementsByTagName( '*' );
-   return $domnodelist;
-}
-
-// while current item has children
-//    retrieve children
-$foo = array();
-
-function dnl2array( $domnodelist ) {
-   //$return = array();
-   GLOBAL $foo;
-   
-   for ($i = 0; $i < $domnodelist->length; ++$i) {
-      $cur_node = $domnodelist->item( $i );
-      $foo[] = '&lt;' . $cur_node->nodeName . '&gt; ' . $cur_node->nodeValue . '&lt;/' . $cur_node->nodeName . '&gt; ';
-      if( $cur_node->hasChildNodes() )
-      //if( $cur_node->childNodes->length != 1 )
-         dnl2array( $cur_node->childNodes );
-   }
-   
-   
-   /*
-   foreach( $domnodelist->childNodes as $node ) {
-      $return[] = $node->nodeValue;
-      if( $node->hasChildNodes() )
-         dnl2array( $node );
-   }
-   */
-   
-   /*
-   foreach( $domnodelist as $node ) {
-      foreach( $node->childNodes as $child ) {
-         $return[] = array($child->nodeName => $child->nodeValue);
-      }
-   }
-   */
-   return $foo;
-}
 
 /***************************************************************************
 Function: clean_html_page( html )
@@ -481,20 +372,4 @@ print "  <input type=\"hidden\" name=\"perform\" value=\"getrss\" />\n";
    
    return;
 } // end print_url_form() 
-
-/***************************************************************************
-Function: starts_with( str, str )
-Accepts: string, string to match
-Returns: true on match, false otherwise
-
-Description:
-See if a string starts with another string.
-
-Adapted from:
-http://stackoverflow.com/questions/834303/php-startswith-and-endswith-functions
-***************************************************************************/
-function starts_with( $haystack, $needle )
-{
-    return !strncmp( $haystack, $needle, strlen( $needle ) );
-} // end starts_with()
 ?>
