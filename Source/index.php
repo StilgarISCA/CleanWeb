@@ -10,23 +10,10 @@ Description:
 Parse RSS Feeds and display the list of descriptions/links.  Links clicked
 by the user are "cleaned" and sent back to the client.
 
-#TODO:
-1.) Display list of RSS links
-2.) Add ability to add RSS feeds
-3.) Display only relavent content
-4.) Consolidate content split over multiple pages
-5.) Make google-like homepage
-6.) Some sites use relative pathing, so next link is directed toward teh wrong site
-7.) Blank pages show up if a page is only an ad or video
-8.) Auto-detect urls inside returned codes and make them link properly (might be hard with bit.ly-type links)
-10.) Add url button to any page - DONE
-11.) Try to prevent injection by sanitizing submit input
-12.) auto-append http:// to submitted links - DONE
-13.) If there is no RSS Found, just dump the page content
-14.) The site is dumping text that isn't inside tags. I think I could get rid of more garbage if there's a way to strip it out.
 ***************************************************************************/
 define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
 define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
+
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
       $html_page = get_url_contents( $url );
