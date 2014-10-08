@@ -15,6 +15,7 @@ define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
 define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
 
 require_once( './SiteSyndication.inc' );
+require_once( './SiteIndexItem.php' );
 
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
@@ -172,23 +173,30 @@ function parse_rss_feed( $xml_data )
    xml_parse_into_struct( $xml_parser, $xml_data, $values ); 
    xml_parse( $xml_parser, $xml_data );
    xml_parser_free( $xml_parser );
+   
+   $siteIndexItem = new SiteIndexItem();
   
    // loop through array pulling/formatting desired data, and throw into 2d array
    $cur_count = 0;    
    for( $i=0; $i < sizeof( $values ); $i++ ){
+      $siteIndexItem = NULL;
       switch(  $values[$i]['tag'] ){
          case "TITLE":
-            $data_ary[$cur_count]['title'] = $values[$i]['value'];
+            //$data_ary[$cur_count]['title'] = $values[$i]['value'];
+            $siteIndexItem->title = $values[$i]['value'];
             break;
          case "DESCRIPTION":
             // strip out any HTML/javascript garbage contaminating the feeds
-            $data_ary[$cur_count]['description'] = strip_tags( $values[$i]['value'] );
+            //$data_ary[$cur_count]['description'] = strip_tags( $values[$i]['value'] );
+            $siteIndexItem->description = strip_tags( $values[$i]['value'] );
             break;             
          case "LINK":
             // encode the url for easy passing through GET later
-            $data_ary[$cur_count]['link'] = base64_encode( urlencode($values[$i]['value'] ) );
+            //$data_ary[$cur_count]['link'] = base64_encode( urlencode($values[$i]['value'] ) );
+            $siteIndexItem->url = base64_encode( urlencode($values[$i]['value'] ) );
             break;       
          case "ITEM":
+            $data_ary[$cur_count] = $siteIndexItem;
             $cur_count++;
             break;
       }      
@@ -258,9 +266,54 @@ Description:
 Prints data in array as a simple homepage.
 
 ***************************************************************************/
-function print_homepage( $data_ary )
+function print_homepage( $siteIndexItemArray )
 {
-
+      // Assign page title
+   if( strlen( $siteIndexItemArray[0]->title ) > 0 )
+      $feed_title = $siteIndexItemArray[0]->title;
+   else
+      $feed_title = "RSS Feed Title Unknown";
+      
+   // Assign page description
+   if( strlen($siteIndexItemArray[0]->description ) > 0 )
+      $feed_description = $siteIndexItemArray[0]->description;
+   else
+      $feed_description = "RSS Feed Description Unknown";
+      
+      
+   print "<html>\n";
+   print "<head>\n";
+   print "  <title>$feed_title</title>\n";
+   print "  <meta name=\"description\" content=\"$feed_description\">\n";
+   print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
+   print_css();
+   print "</head>\n";
+   print "<body>\n";
+    
+   print_url_form(); 
+    
+   print "<h1>$feed_title</h1>\n";
+   print "<p>$feed_description</p>\n";
+   print "<p style=\"font-style: italic;\">Date: " . date("M j, Y") . "</p>\n";
+   print "<hr>\n";
+    
+   // Show the contents of the page
+   // Note: start at index 1 because the first two entries are links back to the feeds homepage and whatnot
+   for( $i = 1; $i < sizeof( $siteIndexItemArray ); $i++ ) {
+      if( empty( $siteIndexItemArray[$i]->title ) )
+         continue;
+      print "<h2>". $siteIndexItemArray[$i]->title ."</h2>\n";
+      print "<p>" . $siteIndexItemArray[$i]->description;
+      if( strlen( $siteIndexItemArray[$i]->url ) > 0 ) {
+         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . base64_encode( urlencode( $siteIndexItemArray[$i]->title ) ) . "&page=" . $siteIndexItemArray[$i]->url . "\">Full Story.</a>";
+      }
+      print "</p>\n";
+   }
+   
+   print_footer(); 
+   print "</body>\n";
+   print "</html>\n";
+/*
    // Assign page title
    if( strlen( $data_ary[0]['title'] ) > 0 )
       $feed_title = $data_ary[0]['title'];
@@ -306,7 +359,7 @@ function print_homepage( $data_ary )
    print_footer(); 
    print "</body>\n";
    print "</html>\n";
-
+*/
    return;
 } // end function print_homepage()
 
