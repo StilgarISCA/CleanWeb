@@ -14,6 +14,8 @@ by the user are "cleaned" and sent back to the client.
 define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
 define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
 
+require_once( './SiteSyndication.inc' );
+
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
       $html_page = get_url_contents( $url );
