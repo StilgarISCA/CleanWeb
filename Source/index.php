@@ -25,7 +25,7 @@ by the user are "cleaned" and sent back to the client.
 13.) If there is no RSS Found, just dump the page content
 14.) The site is dumping text that isn't inside tags. I think I could get rid of more garbage if there's a way to strip it out.
 ***************************************************************************/
-define("HOST_DOMAIN", "http://www.yakhair.com");
+define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
 define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
