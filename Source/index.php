@@ -11,10 +11,15 @@ Parse RSS Feeds and display the list of descriptions/links.  Links clicked
 by the user are "cleaned" and sent back to the client.
 
 ***************************************************************************/
-define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
-define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
+// Set the timezone for the script
+// http://php.net/manual/en/timezones.php
+date_default_timezone_set( 'America/Detroit' );
+
+define( "HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME'] );
+define( "TARGET_RSS_FEED", "http://news.google.com/?output=rss" );
 
 require_once( './SiteSyndication.inc' );
+require_once( './SiteIndexItem.inc' );
 
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
@@ -151,13 +156,11 @@ function get_url_contents( $url )
 /***************************************************************************
 Function: parse_rss_feed( str )
 Accepts: rss data as xml format
-Returns: array[n]['title'] = Feed Title
-         array[n]['description'] = Feed description (stripped of html)
-         array[n]['link'] = Feed link (encoded)
+Returns: array of SiteIndexItem objects
 
 Description:
 Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores
-that information within an array which is then returned.
+that information within an array of objects which is then returned.
 
 HTML is stripped from the discription, and the link is encoded using
 urlencode and base64.
@@ -174,22 +177,24 @@ function parse_rss_feed( $xml_data )
    xml_parser_free( $xml_parser );
   
    // loop through array pulling/formatting desired data, and throw into 2d array
-   $cur_count = 0;    
+   $cur_count = 0;
    for( $i=0; $i < sizeof( $values ); $i++ ){
       switch(  $values[$i]['tag'] ){
          case "TITLE":
-            $data_ary[$cur_count]['title'] = $values[$i]['value'];
+            $title = $values[$i]['value'];
             break;
          case "DESCRIPTION":
             // strip out any HTML/javascript garbage contaminating the feeds
-            $data_ary[$cur_count]['description'] = strip_tags( $values[$i]['value'] );
+            $description = strip_tags( $values[$i]['value'] );
             break;             
          case "LINK":
             // encode the url for easy passing through GET later
-            $data_ary[$cur_count]['link'] = base64_encode( urlencode($values[$i]['value'] ) );
+            $url = base64_encode( urlencode($values[$i]['value'] ) );
             break;       
          case "ITEM":
-            $cur_count++;
+            // add the item, increment and reinitialize
+            $data_ary[$cur_count++] = new SiteIndexItem( $title, $description, $url );
+            $title = $description = $url = null;
             break;
       }      
    }
@@ -249,27 +254,24 @@ function print_footer()
 
 /***************************************************************************
 Function: print_homepage( ary[][] )
-Accepts: array[n]['title'] = Feed Title
-         array[n]['description'] = Feed description (stripped of html)
-         array[n]['link'] = Feed link (encoded)
+Accepts: array of SiteIndexItem objects
 Returns: nothing
 
 Description:
-Prints data in array as a simple homepage.
+Prints data in object array as a simple homepage.
 
 ***************************************************************************/
-function print_homepage( $data_ary )
+function print_homepage( $siteIndexItemArray )
 {
-
-   // Assign page title
-   if( strlen( $data_ary[0]['title'] ) > 0 )
-      $feed_title = $data_ary[0]['title'];
+      // Assign page title
+   if( strlen( $siteIndexItemArray[0]->title ) > 0 )
+      $feed_title = $siteIndexItemArray[0]->title;
    else
       $feed_title = "RSS Feed Title Unknown";
       
    // Assign page description
-   if( strlen($data_ary[0]['description'] ) > 0 )
-      $feed_description = $data_ary[0]['description'];
+   if( strlen($siteIndexItemArray[0]->description ) > 0 )
+      $feed_description = $siteIndexItemArray[0]->description;
    else
       $feed_description = "RSS Feed Description Unknown";
       
@@ -292,13 +294,13 @@ function print_homepage( $data_ary )
     
    // Show the contents of the page
    // Note: start at index 1 because the first two entries are links back to the feeds homepage and whatnot
-   for( $i = 1; $i < sizeof( $data_ary ); $i++ ) {
-      if( empty( $data_ary[$i]['title'] ) )
+   for( $i = 1; $i < sizeof( $siteIndexItemArray ); $i++ ) {
+      if( empty( $siteIndexItemArray[$i]->title ) )
          continue;
-      print "<h2>". $data_ary[$i]['title'] ."</h2>\n";
-      print "<p>" . $data_ary[$i]['description'];
-      if( strlen( $data_ary[$i]['link'] ) > 0 ) {
-         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . base64_encode( urlencode( $data_ary[$i]['title'] ) ) . "&page=" . $data_ary[$i]['link'] . "\">Full Story.</a>";
+      print "<h2>". $siteIndexItemArray[$i]->title ."</h2>\n";
+      print "<p>" . $siteIndexItemArray[$i]->description;
+      if( strlen( $siteIndexItemArray[$i]->url ) > 0 ) {
+         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . base64_encode( urlencode( $siteIndexItemArray[$i]->title ) ) . "&page=" . $siteIndexItemArray[$i]->url . "\">Full Story.</a>";
       }
       print "</p>\n";
    }
