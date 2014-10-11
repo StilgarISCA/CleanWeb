@@ -20,15 +20,16 @@ define( "TARGET_RSS_FEED", "http://news.google.com/?output=rss" );
 
 require_once( './SiteSyndication.inc' );
 require_once( './SiteIndexItem.inc' );
+require_once( './UrlUtils.inc' );
 
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
-      $url = urldecode( base64_decode( $_GET['page'] ) );
+      $url = UrlUtils::CleanWebDecode( $_GET['page'] );
       $html_page = get_url_contents( $url );
       $cleaned_page = clean_html_page( $html_page );    
       $additional_pages = find_additional_pages( $html_page );
       print_single_page( $cleaned_page, $_GET['title'], $additional_pages );
    } elseif( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
-      $url = urldecode( base64_decode( $_GET['page'] ) );
+      $url = UrlUtils::CleanWebDecode( $_GET['page'] );
       $siteSyndication = new SiteSyndication( $url );
       if ( $siteSyndication->getFeeds() == '' ) {
          $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
@@ -189,7 +190,7 @@ function parse_rss_feed( $xml_data )
             break;             
          case "LINK":
             // encode the url for easy passing through GET later
-            $url = base64_encode( urlencode($values[$i]['value'] ) );
+            $url = UrlUtils::CleanWebEncode( $values[$i]['value'] );
             break;       
          case "ITEM":
             // add the item, increment and reinitialize
@@ -215,7 +216,7 @@ also a link to the original, uncleaned version of the page.
 function print_fixed_links( $encoded_link )
 {  
    // TODO: Once this is working remove the link to the old cleaner
-   print "<p><a target=\"_new\" href=\"". HOST_DOMAIN ."/rss2avantgo.php?perform=getpage&page=$encoded_link\">View with previous version of program</a> | <a target=\"_new\" href=\"" . urldecode( base64_decode( $encoded_link) ) . "\"\">View Original</a></p>";
+   print "<p><a target=\"_new\" href=\"". HOST_DOMAIN ."/rss2avantgo.php?perform=getpage&page=$encoded_link\">View with previous version of program</a> | <a target=\"_new\" href=\"" . UrlUtils::CleanWebDecode( $encoded_link ) . "\"\">View Original</a></p>";
    
    return;
 } // end print_fixed_links()
@@ -300,7 +301,7 @@ function print_homepage( $siteIndexItemArray )
       print "<h2>". $siteIndexItemArray[$i]->title ."</h2>\n";
       print "<p>" . $siteIndexItemArray[$i]->description;
       if( strlen( $siteIndexItemArray[$i]->url ) > 0 ) {
-         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . base64_encode( urlencode( $siteIndexItemArray[$i]->title ) ) . "&page=" . $siteIndexItemArray[$i]->url . "\">Full Story.</a>";
+         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . UrlUtils::CleanWebEncode( $siteIndexItemArray[$i]->title ) . "&page=" . $siteIndexItemArray[$i]->url . "\">Full Story.</a>";
       }
       print "</p>\n";
    }
@@ -324,7 +325,7 @@ Prints data passed in as a simple web page.
 ***************************************************************************/
 function print_single_page( $html, $title, $additional_pages )
 {
-   $title = urldecode(base64_decode( $title ) );
+   $title = UrlUtils::CleanWebDecode( $title );
 
    print "<html>\n";
    print "<head>\n";
