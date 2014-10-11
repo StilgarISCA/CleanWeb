@@ -1,4 +1,7 @@
 <?php
+/*
+   Encapsulate functionality for SiteIndexItems
+*/
 class SiteIndexItem
 {
    public $title;
@@ -11,6 +14,5 @@ class SiteIndexItem
       $this->description = $description;
       $this->url = $url;
    } // end ctor
-
 }
 ?>

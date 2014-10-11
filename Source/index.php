@@ -156,13 +156,11 @@ function get_url_contents( $url )
 /***************************************************************************
 Function: parse_rss_feed( str )
 Accepts: rss data as xml format
-Returns: array[n]['title'] = Feed Title
-         array[n]['description'] = Feed description (stripped of html)
-         array[n]['link'] = Feed link (encoded)
+Returns: array of SiteIndexItem objects
 
 Description:
 Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores
-that information within an array which is then returned.
+that information within an array of objects which is then returned.
 
 HTML is stripped from the discription, and the link is encoded using
 urlencode and base64.
@@ -256,13 +254,11 @@ function print_footer()
 
 /***************************************************************************
 Function: print_homepage( ary[][] )
-Accepts: array[n]['title'] = Feed Title
-         array[n]['description'] = Feed description (stripped of html)
-         array[n]['link'] = Feed link (encoded)
+Accepts: array of SiteIndexItem objects
 Returns: nothing
 
 Description:
-Prints data in array as a simple homepage.
+Prints data in object array as a simple homepage.
 
 ***************************************************************************/
 function print_homepage( $siteIndexItemArray )
