@@ -192,7 +192,7 @@ function parse_rss_feed( $xml_data )
          case "ITEM":
             // add the item, increment and reinitialize
             $data_ary[$cur_count++] = new SiteIndexItem( $title, $description, $url );
-            $title = $description = $url = '';
+            $title = $description = $url = null;
             break;
       }      
    }
@@ -308,53 +308,7 @@ function print_homepage( $siteIndexItemArray )
    print_footer(); 
    print "</body>\n";
    print "</html>\n";
-/*
-   // Assign page title
-   if( strlen( $data_ary[0]['title'] ) > 0 )
-      $feed_title = $data_ary[0]['title'];
-   else
-      $feed_title = "RSS Feed Title Unknown";
-      
-   // Assign page description
-   if( strlen($data_ary[0]['description'] ) > 0 )
-      $feed_description = $data_ary[0]['description'];
-   else
-      $feed_description = "RSS Feed Description Unknown";
-      
-      
-   print "<html>\n";
-   print "<head>\n";
-   print "  <title>$feed_title</title>\n";
-   print "  <meta name=\"description\" content=\"$feed_description\">\n";
-   print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print_css();
-   print "</head>\n";
-   print "<body>\n";
-    
-   print_url_form(); 
-    
-   print "<h1>$feed_title</h1>\n";
-   print "<p>$feed_description</p>\n";
-   print "<p style=\"font-style: italic;\">Date: " . date("M j, Y") . "</p>\n";
-   print "<hr>\n";
-    
-   // Show the contents of the page
-   // Note: start at index 1 because the first two entries are links back to the feeds homepage and whatnot
-   for( $i = 1; $i < sizeof( $data_ary ); $i++ ) {
-      if( empty( $data_ary[$i]['title'] ) )
-         continue;
-      print "<h2>". $data_ary[$i]['title'] ."</h2>\n";
-      print "<p>" . $data_ary[$i]['description'];
-      if( strlen( $data_ary[$i]['link'] ) > 0 ) {
-         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . base64_encode( urlencode( $data_ary[$i]['title'] ) ) . "&page=" . $data_ary[$i]['link'] . "\">Full Story.</a>";
-      }
-      print "</p>\n";
-   }
-   
-   print_footer(); 
-   print "</body>\n";
-   print "</html>\n";
-*/
+
    return;
 } // end function print_homepage()
 
