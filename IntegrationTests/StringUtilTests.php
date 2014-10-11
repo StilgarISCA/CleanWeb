@@ -1,5 +1,5 @@
 <?php
-require_once( './UrlUtils.inc' );
+require_once( './StringUtil.inc' );
 
 $urlToEncode = 'http://www.php.net/';
 $encodedUrl = 'aHR0cCUzQSUyRiUyRnd3dy5waHAubmV0JTJG';
