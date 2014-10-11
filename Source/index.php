@@ -11,8 +11,12 @@ Parse RSS Feeds and display the list of descriptions/links.  Links clicked
 by the user are "cleaned" and sent back to the client.
 
 ***************************************************************************/
-define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
-define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
+// Set the timezone for the script
+// http://php.net/manual/en/timezones.php
+date_default_timezone_set( 'America/Detroit' );
+
+define( "HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME'] );
+define( "TARGET_RSS_FEED", "http://news.google.com/?output=rss" );
 
 require_once( './SiteSyndication.inc' );
 require_once( './SiteIndexItem.inc' );
