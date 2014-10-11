@@ -15,7 +15,7 @@ define("HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME']);
 define("TARGET_RSS_FEED", "http://news.google.com/?output=rss");
 
 require_once( './SiteSyndication.inc' );
-require_once( './SiteIndexItem.php' );
+require_once( './SiteIndexItem.inc' );
 
    if( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       $url = urldecode( base64_decode( $_GET['page'] ) );
@@ -173,31 +173,26 @@ function parse_rss_feed( $xml_data )
    xml_parse_into_struct( $xml_parser, $xml_data, $values ); 
    xml_parse( $xml_parser, $xml_data );
    xml_parser_free( $xml_parser );
-   
-   $siteIndexItem = new SiteIndexItem();
   
    // loop through array pulling/formatting desired data, and throw into 2d array
-   $cur_count = 0;    
+   $cur_count = 0;
    for( $i=0; $i < sizeof( $values ); $i++ ){
-      $siteIndexItem = NULL;
       switch(  $values[$i]['tag'] ){
          case "TITLE":
-            //$data_ary[$cur_count]['title'] = $values[$i]['value'];
-            $siteIndexItem->title = $values[$i]['value'];
+            $title = $values[$i]['value'];
             break;
          case "DESCRIPTION":
             // strip out any HTML/javascript garbage contaminating the feeds
-            //$data_ary[$cur_count]['description'] = strip_tags( $values[$i]['value'] );
-            $siteIndexItem->description = strip_tags( $values[$i]['value'] );
+            $description = strip_tags( $values[$i]['value'] );
             break;             
          case "LINK":
             // encode the url for easy passing through GET later
-            //$data_ary[$cur_count]['link'] = base64_encode( urlencode($values[$i]['value'] ) );
-            $siteIndexItem->url = base64_encode( urlencode($values[$i]['value'] ) );
+            $url = base64_encode( urlencode($values[$i]['value'] ) );
             break;       
          case "ITEM":
-            $data_ary[$cur_count] = $siteIndexItem;
-            $cur_count++;
+            // add the item, increment and reinitialize
+            $data_ary[$cur_count++] = new SiteIndexItem( $title, $description, $url );
+            $title = $description = $url = '';
             break;
       }      
    }
