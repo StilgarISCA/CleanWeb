@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encapsulates functionality for URL utilities
  */
@@ -14,10 +15,13 @@ class UrlUtil
     */
    public static function getUrlContents( $url )
    {
-      $fileContents = NULL;
+      if ( empty( $url ) )
+         die( __METHOD__ . ': $url cannot be null or empty' );
+
+      $fileContents = '';
 
       if ( !( $fileHandle = @fopen( $url, "r" ) ) )
-         die( "Error! Could not open: $url" );
+         die( __METHOD__ . ": Could not open: $url" );
 
       while ( !feof( $fileHandle ) )
          $fileContents .= fgets( $fileHandle, 4096 );
