@@ -12,36 +12,37 @@
  ***************************************************************************/
 // Set the timezone for the script
 // http://php.net/manual/en/timezones.php
-date_default_timezone_set ( 'America/Detroit' );
+date_default_timezone_set( 'America/Detroit' );
 
 define( "HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME'] );
 define( "TARGET_RSS_FEED", "http://news.google.com/?output=rss" );
 
-require_once ( './SiteSyndication.inc' );
-require_once ( './SiteIndexItem.inc' );
-require_once ( './StringUtil.inc' );
+require_once( './SiteSyndication.inc' );
+require_once( './SiteIndexItem.inc' );
+require_once( './StringUtil.inc' );
+require_once( './UrlUtil.inc' );
 
 if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
-   $url = StringUtil::CleanWebDecode ( $_GET['page'] );
-   $html_page = get_url_contents ( $url );
-   $cleaned_page = clean_html_page ( $html_page );
-   $additional_pages = find_additional_pages ( $html_page );
-   print_single_page ( $cleaned_page, $_GET['title'], $additional_pages );
+   $url = StringUtil::CleanWebDecode( $_GET['page'] );
+   $html_page = UrlUtil::GetUrlContents( $url );
+   $cleaned_page = clean_html_page( $html_page );
+   $additional_pages = find_additional_pages( $html_page );
+   print_single_page( $cleaned_page, $_GET['title'], $additional_pages );
 } elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
-   $url = StringUtil::CleanWebDecode ( $_GET['page'] );
+   $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $siteSyndication = new SiteSyndication( $url );
-   if ( $siteSyndication->getFeeds () == '' ) {
-      $url = htmlspecialchars ( $url, ENT_QUOTES, 'UTF-8', true );
+   if ( $siteSyndication->getFeeds() == '' ) {
+      $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
       print "<h1>RSS not found</h1><p>URL: $url";
       exit();
    }
-   $rss_feed = get_url_contents ( $siteSyndication->getFeeds () );
-   $rss_data_ary = parse_rss_feed ( $rss_feed );
-   print_homepage ( $rss_data_ary );
+   $rss_feed = UrlUtil::GetUrlContents( $siteSyndication->getFeeds() );
+   $rss_data_ary = parse_rss_feed( $rss_feed );
+   print_homepage( $rss_data_ary );
 } else {
-   $rss_feed = get_url_contents ( TARGET_RSS_FEED );
-   $rss_data_ary = parse_rss_feed ( $rss_feed );
-   print_homepage ( $rss_data_ary );
+   $rss_feed = UrlUtil::GetUrlContents( TARGET_RSS_FEED );
+   $rss_data_ary = parse_rss_feed( $rss_feed );
+   print_homepage( $rss_data_ary );
 }
 exit();
 
@@ -55,15 +56,15 @@ function find_additional_pages( $html )
 
    $domObj = new domDocument();
 
-   @$domObj->loadHTML ( $html );
+   @$domObj->loadHTML( $html );
    $domObj->preserveWhiteSpace = false;
 
-   $anchors = $domObj->getElementsByTagName ( 'a' );
+   $anchors = $domObj->getElementsByTagName( 'a' );
 
    foreach ( $anchors as $anchor ) {
       //$url = "Additional content was found finish implementing next page";
-      if ( stripos ( $anchor->nodeValue, 'next' ) !== false ) {
-         $value = $anchor->getAttribute ( 'href' );
+      if ( stripos( $anchor->nodeValue, 'next' ) !== false ) {
+         $value = $anchor->getAttribute( 'href' );
          $valueToo = $anchor->nodeValue;
          $url = "Next Page Detected as: <a href=\"$value\">$valueToo</a>";
       }
@@ -84,12 +85,12 @@ function find_additional_pages( $html )
 function clean_html_page( $html )
 {
    // Skip everything before first <h1
-   $cleaned_page = substr ( $html, stripos ( $html, '<h1' ) );
+   $cleaned_page = substr( $html, stripos( $html, '<h1' ) );
 
    // Skip everything after last "comment", "discuss" or "recommend" whichever is higher up the page
-   $comment_position = strripos ( $cleaned_page, 'comment' );
-   $discuss_position = strripos ( $cleaned_page, 'discuss' );
-   $recommend_position = strripos ( $cleaned_page, 'recommend' );
+   $comment_position = strripos( $cleaned_page, 'comment' );
+   $discuss_position = strripos( $cleaned_page, 'discuss' );
+   $recommend_position = strripos( $cleaned_page, 'recommend' );
    if ( $comment_position <= $discuss_position )
       $end_at = $comment_position;
    else
@@ -97,10 +98,10 @@ function clean_html_page( $html )
    if ( $recommend_position > $end_at )
       $end_at = $recommend_position;
    if ( $end_at !== false )
-      $cleaned_page = substr ( $cleaned_page, 0, $end_at );
+      $cleaned_page = substr( $cleaned_page, 0, $end_at );
 
    // Strip all tags not specified
-   $cleaned_page = strip_tags ( $cleaned_page, "<title><head><h1><h2><h3><h4><h5><h6><p><script><style><cite><strong><blockquote><address><b><i><u><em>" );
+   $cleaned_page = strip_tags( $cleaned_page, "<title><head><h1><h2><h3><h4><h5><h6><p><script><style><cite><strong><blockquote><address><b><i><u><em>" );
 
    // Now clean up the remaining tags
    $pattern = array(
@@ -112,7 +113,7 @@ function clean_html_page( $html )
       '@<style[^>]*?>.*?</style>@siU', // Strip style tags
       '@<![\s\S]*?--[ \t\n\r]*>@' // Strip multi-line comments including CDATA
    );
-   $cleaned_page = preg_replace ( $pattern, '', $cleaned_page );
+   $cleaned_page = preg_replace( $pattern, '', $cleaned_page );
 
    // Clean the attributes from the remaining tags
    $pattern = array(
@@ -120,37 +121,13 @@ function clean_html_page( $html )
       '@<*? style=".*?"*?>@', // strip inline style info
       '@<*? id=".*?"*?>@' // strip id
    );
-   $cleaned_page = preg_replace ( $pattern, '${1}>', $cleaned_page );
+   $cleaned_page = preg_replace( $pattern, '${1}>', $cleaned_page );
 
    // Strip whitespace
-   $cleaned_page = preg_replace ( '/\s+/', ' ', $cleaned_page );
+   $cleaned_page = preg_replace( '/\s+/', ' ', $cleaned_page );
 
    return $cleaned_page;
 } // end function clean_html_page()
-
-/***************************************************************************
- * Function: get_url_contents( url )
- * Accepts: url of site to get
- * Returns: page contents
- *
- * Description:
- * Use fopen to make a connection to the url passed into the function, read
- * the page 4096 bytes at a time and return the contents.
- ***************************************************************************/
-function get_url_contents( $url )
-{
-   $file_contents = "";
-   if ( !( $file_handle = @fopen ( $url, "r" ) ) )
-      die( "Error! Could not open: $url" );
-
-   while ( !feof ( $file_handle ) )
-      $file_contents .= fgets ( $file_handle, 4096 );
-
-   fclose ( $file_handle );
-
-   return $file_contents;
-} // end function get_url_contents()
-
 
 /***************************************************************************
  * Function: parse_rss_feed( str )
@@ -167,27 +144,27 @@ function get_url_contents( $url )
 function parse_rss_feed( $xml_data )
 {
    // parse the xml into an array
-   $xml_parser = xml_parser_create ();
-   xml_parser_set_option ( $xml_parser, XML_OPTION_SKIP_WHITE, 1 );
-   xml_parser_set_option ( $xml_parser, XML_OPTION_CASE_FOLDING, 1 );
-   xml_parse_into_struct ( $xml_parser, $xml_data, $values );
-   xml_parse ( $xml_parser, $xml_data );
-   xml_parser_free ( $xml_parser );
+   $xml_parser = xml_parser_create();
+   xml_parser_set_option( $xml_parser, XML_OPTION_SKIP_WHITE, 1 );
+   xml_parser_set_option( $xml_parser, XML_OPTION_CASE_FOLDING, 1 );
+   xml_parse_into_struct( $xml_parser, $xml_data, $values );
+   xml_parse( $xml_parser, $xml_data );
+   xml_parser_free( $xml_parser );
 
    // loop through array pulling/formatting desired data, and throw into 2d array
    $cur_count = 0;
-   for ( $i = 0; $i < sizeof ( $values ); $i++ ) {
+   for ( $i = 0; $i < sizeof( $values ); $i++ ) {
       switch ( $values[ $i ]['tag'] ) {
          case "TITLE":
             $title = $values[ $i ]['value'];
             break;
          case "DESCRIPTION":
             // strip out any HTML/javascript garbage contaminating the feeds
-            $description = strip_tags ( $values[ $i ]['value'] );
+            $description = strip_tags( $values[ $i ]['value'] );
             break;
          case "LINK":
             // encode the url for easy passing through GET later
-            $url = StringUtil::CleanWebEncode ( $values[ $i ]['value'] );
+            $url = StringUtil::CleanWebEncode( $values[ $i ]['value'] );
             break;
          case "ITEM":
             // add the item, increment and reinitialize
@@ -212,7 +189,7 @@ function parse_rss_feed( $xml_data )
 function print_fixed_links( $encoded_link )
 {
    // TODO: Once this is working remove the link to the old cleaner
-   print "<p><a target=\"_new\" href=\"" . HOST_DOMAIN . "/rss2avantgo.php?perform=getpage&page=$encoded_link\">View with previous version of program</a> | <a target=\"_new\" href=\"" . StringUtil::CleanWebDecode ( $encoded_link ) . "\"\">View Original</a></p>";
+   print "<p><a target=\"_new\" href=\"" . HOST_DOMAIN . "/rss2avantgo.php?perform=getpage&page=$encoded_link\">View with previous version of program</a> | <a target=\"_new\" href=\"" . StringUtil::CleanWebDecode( $encoded_link ) . "\"\">View Original</a></p>";
 
    return;
 } // end print_fixed_links()
@@ -259,13 +236,13 @@ function print_footer()
 function print_homepage( $siteIndexItemArray )
 {
    // Assign page title
-   if ( strlen ( $siteIndexItemArray[0]->title ) > 0 )
+   if ( strlen( $siteIndexItemArray[0]->title ) > 0 )
       $feed_title = $siteIndexItemArray[0]->title;
    else
       $feed_title = "RSS Feed Title Unknown";
 
    // Assign page description
-   if ( strlen ( $siteIndexItemArray[0]->description ) > 0 )
+   if ( strlen( $siteIndexItemArray[0]->description ) > 0 )
       $feed_description = $siteIndexItemArray[0]->description;
    else
       $feed_description = "RSS Feed Description Unknown";
@@ -276,31 +253,31 @@ function print_homepage( $siteIndexItemArray )
    print "  <title>$feed_title</title>\n";
    print "  <meta name=\"description\" content=\"$feed_description\">\n";
    print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print_css ();
+   print_css();
    print "</head>\n";
    print "<body>\n";
 
-   print_url_form ();
+   print_url_form();
 
    print "<h1>$feed_title</h1>\n";
    print "<p>$feed_description</p>\n";
-   print "<p style=\"font-style: italic;\">Date: " . date ( "M j, Y" ) . "</p>\n";
+   print "<p style=\"font-style: italic;\">Date: " . date( "M j, Y" ) . "</p>\n";
    print "<hr>\n";
 
    // Show the contents of the page
    // Note: start at index 1 because the first two entries are links back to the feeds homepage and whatnot
-   for ( $i = 1; $i < sizeof ( $siteIndexItemArray ); $i++ ) {
+   for ( $i = 1; $i < sizeof( $siteIndexItemArray ); $i++ ) {
       if ( empty( $siteIndexItemArray[ $i ]->title ) )
          continue;
       print "<h2>" . $siteIndexItemArray[ $i ]->title . "</h2>\n";
       print "<p>" . $siteIndexItemArray[ $i ]->description;
-      if ( strlen ( $siteIndexItemArray[ $i ]->url ) > 0 ) {
-         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . StringUtil::CleanWebEncode ( $siteIndexItemArray[ $i ]->title ) . "&page=" . $siteIndexItemArray[ $i ]->url . "\">Full Story.</a>";
+      if ( strlen( $siteIndexItemArray[ $i ]->url ) > 0 ) {
+         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . StringUtil::CleanWebEncode( $siteIndexItemArray[ $i ]->title ) . "&page=" . $siteIndexItemArray[ $i ]->url . "\">Full Story.</a>";
       }
       print "</p>\n";
    }
 
-   print_footer ();
+   print_footer();
    print "</body>\n";
    print "</html>\n";
 
@@ -318,23 +295,23 @@ function print_homepage( $siteIndexItemArray )
  ***************************************************************************/
 function print_single_page( $html, $title, $additional_pages )
 {
-   $title = StringUtil::CleanWebDecode ( $title );
+   $title = StringUtil::CleanWebDecode( $title );
 
    print "<html>\n";
    print "<head>\n";
    print "  <title>$title</title>\n";
    print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print_css ();
+   print_css();
    print "</head>\n";
    print "<body>\n";
 
-   print_url_form ();
-   print_fixed_links ( $_GET['page'] );
+   print_url_form();
+   print_fixed_links( $_GET['page'] );
 
    print $html;
    print $additional_pages;
 
-   print_footer ();
+   print_footer();
    print "</body>\n";
    print "</html>\n";
 
