@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Encapsulates functionality for SiteIndexItems
  */
@@ -15,4 +16,5 @@ class SiteIndexItem
       $this->url = $url;
    } // end ctor
 }
+
 ?>

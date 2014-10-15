@@ -1,4 +1,5 @@
 <?php
+
 /*
    Encapsulate functionality for string utilities
 
@@ -7,16 +8,18 @@
    doubley-encoding or unencoding them, CleanWeb needs to have its own
    encoding/decoding operations.
 */
+
 class StringUtil
 {
    public static function CleanWebDecode( $encodedUrl )
    {
-      return urldecode( base64_decode( $encodedUrl ) );
+      return urldecode ( base64_decode ( $encodedUrl ) );
    } // end function CleanWebDecode()
-   
+
    public static function CleanWebEncode( $urlToEncode )
    {
-      return base64_encode( urlencode( $urlToEncode ) ); 
+      return base64_encode ( urlencode ( $urlToEncode ) );
    } // end function CleanWebEncode()
 }
+
 ?>
