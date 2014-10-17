@@ -37,11 +37,11 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       exit();
    }
    $rss_feed = UrlUtil::GetUrlContents( $siteSyndication->getFeeds() );
-   $rss_data_ary = parse_rss_feed( $rss_feed );
+   $rss_data_ary = SiteSyndication::parseRssFeed( $rss_feed );
    print_homepage( $rss_data_ary );
 } else {
    $rss_feed = UrlUtil::GetUrlContents( TARGET_RSS_FEED );
-   $rss_data_ary = parse_rss_feed( $rss_feed );
+   $rss_data_ary = SiteSyndication::parseRssFeed( $rss_feed );
    print_homepage( $rss_data_ary );
 }
 exit();
@@ -128,54 +128,6 @@ function clean_html_page( $html )
 
    return $cleaned_page;
 } // end function clean_html_page()
-
-/***************************************************************************
- * Function: parse_rss_feed( str )
- * Accepts: rss data as xml format
- * Returns: array of SiteIndexItem objects
- *
- * Description:
- * Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores
- * that information within an array of objects which is then returned.
- *
- * HTML is stripped from the discription, and the link is encoded using
- * urlencode and base64.
- ***************************************************************************/
-function parse_rss_feed( $xml_data )
-{
-   // parse the xml into an array
-   $xml_parser = xml_parser_create();
-   xml_parser_set_option( $xml_parser, XML_OPTION_SKIP_WHITE, 1 );
-   xml_parser_set_option( $xml_parser, XML_OPTION_CASE_FOLDING, 1 );
-   xml_parse_into_struct( $xml_parser, $xml_data, $values );
-   xml_parse( $xml_parser, $xml_data );
-   xml_parser_free( $xml_parser );
-
-   // loop through array pulling/formatting desired data, and throw into 2d array
-   $cur_count = 0;
-   for ( $i = 0; $i < sizeof( $values ); $i++ ) {
-      switch ( $values[ $i ]['tag'] ) {
-         case "TITLE":
-            $title = $values[ $i ]['value'];
-            break;
-         case "DESCRIPTION":
-            // strip out any HTML/javascript garbage contaminating the feeds
-            $description = strip_tags( $values[ $i ]['value'] );
-            break;
-         case "LINK":
-            // encode the url for easy passing through GET later
-            $url = StringUtil::CleanWebEncode( $values[ $i ]['value'] );
-            break;
-         case "ITEM":
-            // add the item, increment and reinitialize
-            $data_ary[ $cur_count++ ] = new SiteIndexItem( $title, $description, $url );
-            $title = $description = $url = NULL;
-            break;
-      }
-   }
-
-   return $data_ary;
-} // end function parse_rss_feed()
 
 /***************************************************************************
  * Function: print_fixed_links( str )
