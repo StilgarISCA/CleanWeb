@@ -31,16 +31,24 @@ class SiteSyndication
       return $domObj;
    } // end loadPageDom()
 
-   public function getFeeds()
+   public function getSiteIndexItems()
+   {
+      $rssFeed = UrlUtil::GetUrlContents( $this->getRssFeed() );
+      $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
+
+      return $siteIndexItemsAry;
+   } // end getSiteIndexItems()
+
+   public function getRssFeed()
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
 
       if( $elements->length > 0
          && ( $elements->item(0)->getAttribute( 'href' ) != ''
-            || $elements->item(0)->getAttribute( 'href' ) == null )
+            || $elements->item(0)->getAttribute( 'href' ) == NULL )
       )
          return $elements->item(0)->getAttribute( 'href' );
-   } // end getFeeds()
+   } // end getRssFeed()
 
    /**
     * Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores

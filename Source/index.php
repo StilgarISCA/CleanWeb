@@ -31,13 +31,14 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
 } elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $siteSyndication = new SiteSyndication( $url );
-   if ( $siteSyndication->getFeeds() == '' ) {
-      $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
-      print "<h1>RSS not found</h1><p>URL: $url";
-      exit();
-   }
-   $rss_feed = UrlUtil::GetUrlContents( $siteSyndication->getFeeds() );
-   $rss_data_ary = SiteSyndication::parseRssFeed( $rss_feed );
+//   if ( $siteSyndication->getRssFeed() == '' ) {
+//      $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
+//      print "<h1>RSS not found</h1><p>URL: $url";
+//      exit();
+//   }
+//   $rss_feed = UrlUtil::GetUrlContents( $siteSyndication->getRssFeed() );
+//   $rss_data_ary = SiteSyndication::parseRssFeed( $rss_feed );
+   $rss_data_ary = $siteSyndication->getSiteIndexItems();
    print_homepage( $rss_data_ary );
 } else {
    $rss_feed = UrlUtil::GetUrlContents( TARGET_RSS_FEED );
@@ -107,7 +108,7 @@ function clean_html_page( $html )
    $pattern = array(
       '@<title[^>]*?>.*?</title>@sim', // title tags
       '@<head[^>]*?>.*?</head>@sim', //head tags
-      '@<noscript[^>]*?>.*?</noscript>@sim', // noscript tags    
+      '@<noscript[^>]*?>.*?</noscript>@sim', // noscript tags
       '@<script[^>]*?>.*?</script>@sim', // script tags
       '@<span[^>]*?>.*?</span>@sim', // span tags
       '@<style[^>]*?>.*?</style>@siU', // Strip style tags
@@ -296,5 +297,5 @@ function print_url_form()
    print "</form>\n";
 
    return;
-} // end print_url_form() 
+} // end print_url_form()
 ?>

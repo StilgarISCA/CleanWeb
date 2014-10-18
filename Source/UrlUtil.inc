@@ -20,7 +20,7 @@ class UrlUtil
 
       $fileContents = '';
 
-      if ( !( $fileHandle = @fopen( $url, "r" ) ) )
+      if ( !( $fileHandle = @fopen( $url, 'r' ) ) )
          die( __METHOD__ . ": Could not open: $url" );
 
       while ( !feof( $fileHandle ) )
