@@ -37,16 +37,26 @@ class SiteSyndication
    public function getSiteIndexItems()
    {
       $siteIndexItemsAry = NULL;
-      $rssUrl = $this->getRssFeedUrl();
 
+      $rssUrl = $this->getRssFeedUrl();
       if ( $rssUrl != NULL ) {
          $rssFeed = UrlUtil::GetUrlContents( $rssUrl );
          $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
       }
 
+      $atomUrl = 'http://en.wikipedia.org/w/api.php?action=featuredfeed&feed=featured&feedformat=atom';//$this->getAtomFeedUrl();
+      if ( $atomUrl != NULL ) {
+         $atomFeed = UrlUtil::GetUrlContents( $atomUrl );
+         $siteIndexItemsAry = SiteSyndication::parseAtomFeed( $atomFeed );
+      }
+
       return $siteIndexItemsAry;
    } // end getSiteIndexItems()
 
+   /**
+    * Locate the FIRST RSS URL in the page and return it
+    * @return URL on success, NULL otherwise
+    */
    public function getRssFeedUrl()
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
@@ -57,6 +67,58 @@ class SiteSyndication
       )
          return $elements->item(0)->getAttribute( 'href' );
    } // end getRssFeedUrl()
+
+   /**
+    * Locate the FIRST Atom URL in the page and return it
+    * @return URL on success, NULL otherwise
+    */
+   public function getAtomFeedUrl()
+   {
+      $elements = $this->_xPath->query( "/html/head/link[@type='application/atom+xml']" );
+
+      if( $elements->length > 0
+         && ( $elements->item(0)->getAttribute( 'href' ) != ''
+            || $elements->item(0)->getAttribute( 'href' ) == NULL )
+      )
+         return $elements->item(0)->getAttribute( 'href' );
+   } // end getAtomFeedUrl()
+
+   public static function parseAtomFeed( $atomXml )
+   {
+      // parse the xml into an array
+      $xmlParser = xml_parser_create();
+      xml_parser_set_option( $xmlParser, XML_OPTION_SKIP_WHITE, 1 );
+      xml_parser_set_option( $xmlParser, XML_OPTION_CASE_FOLDING, 1 );
+      xml_parse_into_struct( $xmlParser, $atomXml, $values );
+      xml_parse( $xmlParser, $atomXml );
+      xml_parser_free( $xmlParser );
+
+      // loop through array pulling/formatting desired data, and throw into array
+      $title = $description = $url = NULL;
+      $curCount = 0;
+      for ( $i = 0; $i < sizeof( $values ); $i++ ) {
+         switch ( $values[ $i ]['tag'] ) {
+            case "TITLE":
+               $title = $values[ $i ]['value'];
+               break;
+            case "SUBTITLE":
+               // strip out any HTML/javascript garbage contaminating the feeds
+               $description = strip_tags( $values[ $i ]['value'] );
+               break;
+            case "LINK":
+               // encode the url for easy passing through GET later
+               $url = StringUtil::CleanWebEncode( $values[ $i ]['value'] );
+               break;
+            case "ENTRY":
+               // add the item, increment and reinitialize
+               $siteItems[ $curCount++ ] = new SiteIndexItem( $title, $description, $url );
+               $title = $description = $url = NULL;
+               break;
+         }
+      }
+
+      return $siteItems;
+   } // end parseAtomFeed()
 
    /**
     * Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores
@@ -104,6 +166,6 @@ class SiteSyndication
       }
 
       return $siteItems;
-   } // end praseRssFeed()
+   } // end parseRssFeed()
 } // end SiteSyndication()
 ?>

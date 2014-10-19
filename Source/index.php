@@ -34,7 +34,7 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $rss_data_ary = $siteSyndication->getSiteIndexItems();
    if ( $rss_data_ary == NULL ) {
       $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
-      print "<h1>RSS not found</h1><p>URL: $url";
+      print "<h1>Site syndication feed not found</h1><p>URL: $url";
       exit();
    }
    print_homepage( $rss_data_ary );
