@@ -31,15 +31,23 @@ class SiteSyndication
       return $domObj;
    } // end loadPageDom()
 
+   /**
+    * @return SiteIndexItem[] on success NULL otherwise
+    */
    public function getSiteIndexItems()
    {
-      $rssFeed = UrlUtil::GetUrlContents( $this->getRssFeed() );
-      $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
+      $siteIndexItemsAry = NULL;
+      $rssUrl = $this->getRssFeedUrl();
+
+      if ( $rssUrl != NULL ) {
+         $rssFeed = UrlUtil::GetUrlContents( $rssUrl );
+         $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
+      }
 
       return $siteIndexItemsAry;
    } // end getSiteIndexItems()
 
-   public function getRssFeed()
+   public function getRssFeedUrl()
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
 
@@ -48,7 +56,7 @@ class SiteSyndication
             || $elements->item(0)->getAttribute( 'href' ) == NULL )
       )
          return $elements->item(0)->getAttribute( 'href' );
-   } // end getRssFeed()
+   } // end getRssFeedUrl()
 
    /**
     * Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores
