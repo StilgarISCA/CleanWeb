@@ -17,6 +17,9 @@ class SiteSyndication
 
    public function __construct( $url )
    {
+      if ( !isset( $url ) || is_null( $url ) || trim( $url ) == false )
+         throw new InvalidArgumentException( "Url cannot be null, empty or whitespace" );
+
       $this->_url = $url;
       $this->_pageDom = $this->loadPageDom( $this->_url );
       $this->_xPath = new DomXPath( $this->_pageDom );
@@ -32,6 +35,7 @@ class SiteSyndication
    } // end loadPageDom()
 
    /**
+    * Gets the items from the site's primary syndication feed
     * @return SiteIndexItem[] on success NULL otherwise
     */
    public function getSiteIndexItems()
@@ -61,11 +65,11 @@ class SiteSyndication
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
 
-      if( $elements->length > 0
-         && ( $elements->item(0)->getAttribute( 'href' ) != ''
-            || $elements->item(0)->getAttribute( 'href' ) == NULL )
+      if ( $elements->length > 0
+         && ( $elements->item( 0 )->getAttribute( 'href' ) != ''
+            || $elements->item( 0 )->getAttribute( 'href' ) == NULL )
       )
-         return $elements->item(0)->getAttribute( 'href' );
+         return $elements->item( 0 )->getAttribute( 'href' );
    } // end getRssFeedUrl()
 
    /**
@@ -76,11 +80,11 @@ class SiteSyndication
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/atom+xml']" );
 
-      if( $elements->length > 0
-         && ( $elements->item(0)->getAttribute( 'href' ) != ''
-            || $elements->item(0)->getAttribute( 'href' ) == NULL )
+      if ( $elements->length > 0
+         && ( $elements->item( 0 )->getAttribute( 'href' ) != ''
+            || $elements->item( 0 )->getAttribute( 'href' ) == NULL )
       )
-         return $elements->item(0)->getAttribute( 'href' );
+         return $elements->item( 0 )->getAttribute( 'href' );
    } // end getAtomFeedUrl()
 
    public static function parseAtomFeed( $atomXml )
