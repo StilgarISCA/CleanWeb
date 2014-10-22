@@ -17,8 +17,8 @@ class SiteSyndication
 
    public function __construct( $url )
    {
-      if ( !isset( $url ) || is_null( $url ) || trim( $url ) == false )
-         throw new InvalidArgumentException( "Url cannot be null, empty or whitespace" );
+      //if ( !isset( $url ) || is_null( $url ) || trim( $url ) == false )
+      //   throw new InvalidArgumentException( "Url cannot be null, empty or whitespace" );
 
       $this->_url = $url;
       $this->_pageDom = $this->loadPageDom( $this->_url );
@@ -48,7 +48,8 @@ class SiteSyndication
          $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
       }
 
-      $atomUrl = 'http://en.wikipedia.org/w/api.php?action=featuredfeed&feed=featured&feedformat=atom';//$this->getAtomFeedUrl();
+      //$atomUrl = 'http://en.wikipedia.org/w/api.php?action=featuredfeed&feed=featured&feedformat=atom';//$this->getAtomFeedUrl();
+      $atomUrl = 'http://www.stackoverflow.com/feeds';
       if ( $atomUrl != NULL ) {
          $atomFeed = UrlUtil::GetUrlContents( $atomUrl );
          $siteIndexItemsAry = SiteSyndication::parseAtomFeed( $atomFeed );
@@ -107,16 +108,27 @@ class SiteSyndication
                break;
             case "SUBTITLE":
                // strip out any HTML/javascript garbage contaminating the feeds
-               $description = strip_tags( $values[ $i ]['value'] );
+               $subtitle = strip_tags( $values[ $i ]['value'] );
                break;
-            case "LINK":
+            case "SUMMARY":
+               // strip out any HTML/javascript garbage contaminating the feeds
+               $summary = strip_tags( $values[ $i ]['value'] );
+               break;
+            case "LINK": print"array: "; print_r( $values[$i]);print "<br>";
+                         print "value: "; print $values[ $i ]['attributes']['HREF']; print "<br>";
                // encode the url for easy passing through GET later
-               $url = StringUtil::CleanWebEncode( $values[ $i ]['value'] );
+               $url = StringUtil::CleanWebEncode( $values[ $i ]['attributes']['HREF'] );
                break;
             case "ENTRY":
+               // Set the description to the longest value, description or subtitle
+               if ( strlen( $subtitle ) > strlen( $summary ) )
+                  $description = $subtitle;
+               else
+                  $description = $summary;
+
                // add the item, increment and reinitialize
                $siteItems[ $curCount++ ] = new SiteIndexItem( $title, $description, $url );
-               $title = $description = $url = NULL;
+               $title = $description = $subtitle = $summary = $url = NULL;
                break;
          }
       }
