@@ -24,6 +24,7 @@ require_once( './UrlUtil.inc' );
 
 if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
+   print "at get page";
    $html_page = UrlUtil::GetUrlContents( $url );
    $cleaned_page = clean_html_page( $html_page );
    $additional_pages = find_additional_pages( $html_page );
@@ -32,7 +33,7 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $siteSyndication = new SiteSyndication( $url );
    $rss_data_ary = $siteSyndication->getSiteIndexItems();
-   if ( $rss_data_ary == NULL ) {
+   if ( is_null( $rss_data_ary ) ) {
       $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
       print "<h1>Site syndication feed not found</h1><p>URL: $url";
       exit();
