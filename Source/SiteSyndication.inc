@@ -17,8 +17,8 @@ class SiteSyndication
 
    public function __construct( $url )
    {
- //     if ( !isset( $url ) || is_null( $url ) || trim( $url ) == false )
- //        throw new InvalidArgumentException( "Url cannot be null, empty or whitespace" );
+      if ( !isset( $url ) || is_null( $url ) || trim( $url ) == false )
+         throw new InvalidArgumentException( "Url cannot be null, empty or whitespace" );
 
       $this->_url = $url;
       $this->_pageDom = $this->loadPageDom( $this->_url );
@@ -46,25 +46,16 @@ class SiteSyndication
       if ( !is_null( $rssUrl ) ) {
          // try to handle relative paths
          if ( StringUtil::StartsWith( $rssUrl, '/') )
-            $rssUrl = $this->url . $rssUrl;
-         else print "<br>does not start with slash<br>";
-         print "$rssUrl";
+            $rssUrl = $this->_url . $rssUrl;
          $rssFeed = UrlUtil::GetUrlContents( $rssUrl );
          $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
       }
 
-      //$atomUrl = 'http://en.wikipedia.org/w/api.php?action=featuredfeed&feed=featured&feedformat=atom';
-      //$atomUrl = 'http://www.stackoverflow.com/feeds';
       $atomUrl = $this->getAtomFeedUrl();
-      //$atomUrl = 'http://www.themeforest.net/feeds/new-site-templates-items.atom';
-      //$atomUrl = 'http://codecanyon.net/feeds/new-codecanyon-items.atom';
-      //$atomUrl = 'http://www.php.net/'
       if ( !is_null( $atomUrl ) ) {
          // try to handle relative paths
          if ( StringUtil::StartsWith( $atomUrl, '/') )
-            $atomUrl = $this->url . $atomUrl;
-         else print "<br>does not start with slash<br>";
-         print "$atomUtl";
+            $atomUrl = $this->_url . $atomUrl;
          $atomFeed = UrlUtil::GetUrlContents( $atomUrl );
          $siteIndexItemsAry = SiteSyndication::parseAtomFeed( $atomFeed );
       }
@@ -99,10 +90,11 @@ class SiteSyndication
          && ( $elements->item( 0 )->getAttribute( 'href' ) != ''
             || $elements->item( 0 )->getAttribute( 'href' ) == NULL )
       )
+
          return $elements->item( 0 )->getAttribute( 'href' );
    } // end getAtomFeedUrl()
 
-   public static function parseAtomFeed( $atomXml )
+   public function parseAtomFeed( $atomXml )
    {
       // parse the xml into an array
       $xmlParser = xml_parser_create();
@@ -132,10 +124,14 @@ class SiteSyndication
                // strip out any HTML/javascript garbage contaminating the feeds
                $content = strip_tags( $values[ $i ]['value'] );
                break;
-            case "LINK": print"array: "; print_r( $values[$i]);print "<br>";
-                         print "value: "; print $values[ $i ]['attributes']['HREF']; print "<br>";
+            case "LINK":
+//print"array: "; print_r( $values[$i]);print "<br>";
+//print "value: "; print $values[ $i ]['attributes']['HREF']['value']; print "<br>";
+               $url = $values[ $i ]['attributes']['HREF'];
+               if ( StringUtil::StartsWith( $url, '/') )
+                  $url = $this->_url . $url;
                // encode the url for easy passing through GET later
-               $url = StringUtil::CleanWebEncode( $values[ $i ]['attributes']['HREF'] );
+               $url = StringUtil::CleanWebEncode( $url );
                break;
             case "ENTRY":
                // Set the description to the longest value, description, subtitle or content

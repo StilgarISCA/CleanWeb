@@ -24,7 +24,6 @@ require_once( './UrlUtil.inc' );
 
 if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
-   print "at get page";
    $html_page = UrlUtil::GetUrlContents( $url );
    $cleaned_page = clean_html_page( $html_page );
    $additional_pages = find_additional_pages( $html_page );
