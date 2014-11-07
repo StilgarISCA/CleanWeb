@@ -24,30 +24,30 @@ require_once( './UrlUtil.inc' );
 
 if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
-   $html_page = UrlUtil::GetUrlContents( $url );
-   $cleaned_page = clean_html_page( $html_page );
-   $additional_pages = find_additional_pages( $html_page );
-   print_single_page( $cleaned_page, $_GET['title'], $additional_pages );
+   $htmlPage = UrlUtil::GetUrlContents( $url );
+   $cleanedPage = clean_html_page( $htmlPage );
+   $additionalPages = find_additional_pages( $htmlPage );
+   print_single_page( $cleanedPage, $_GET['title'], $additionalPages );
 } elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $siteSyndication = new SiteSyndication( $url );
-   $rss_data_ary = $siteSyndication->getSiteIndexItems();
-   if ( is_null( $rss_data_ary ) ) {
+   $rssDataAry = $siteSyndication->GetSiteIndexItems();
+   if ( is_null( $rssDataAry ) ) {
       $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
       print "<h1>Site syndication feed not found</h1><p>URL: $url";
       exit();
    }
-   print_homepage( $rss_data_ary );
+   print_homepage( $rssDataAry );
 } else {
    $siteSyndication = new SiteSyndication( DEFAULT_BASE_URL );
-   $rss_data_ary = $siteSyndication->getSiteIndexItems();
-   print_homepage( $rss_data_ary );
+   $rssDataAry = $siteSyndication->GetSiteIndexItems();
+   print_homepage( $rssDataAry );
 }
 exit();
 
 /********************************* End Main *******************************/
 
-// any uncommented functions should be considered expiramental
+// any uncommented functions should be considered experimental
 
 function find_additional_pages( $html )
 {

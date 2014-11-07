@@ -6,7 +6,7 @@ class SiteSyndication
 {
    private $_url;
 
-   public function getUrl()
+   public function GetUrl()
    {
       return $this->_url;
    }
@@ -20,49 +20,49 @@ class SiteSyndication
          throw new InvalidArgumentException( __METHOD__ . ': $url cannot be null, empty or whitespace' );
 
       $this->_url = $url;
-      $this->_pageDom = $this->loadPageDom( $this->_url );
+      $this->_pageDom = $this->LoadPageDom( $this->_url );
       $this->_xPath = new DomXPath( $this->_pageDom );
    } // end ctor
 
-   private function loadPageDom( $url )
+   private function LoadPageDom( $url )
    {
       $domObj = new domDocument();
       libxml_use_internal_errors( true );
       $domObj->loadHtmlFile( $url );
 
       return $domObj;
-   } // end loadPageDom()
+   } // end LoadPageDom()
 
    /**
     * Gets the items from the site's primary syndication feed
     * @return SiteIndexItem[] on success NULL otherwise
     */
-   public function getSiteIndexItems()
+   public function GetSiteIndexItems()
    {
       $siteIndexItemsAry = NULL;
 
-      $rssUrl = $this->getRssFeedUrl();
+      $rssUrl = $this->GetRssFeedUrl();
       if ( !is_null( $rssUrl ) ) {
-         $rssUrl = UrlUtil::ensureFullUrl( $rssUrl, $this->_url );
+         $rssUrl = UrlUtil::EnsureFullUrl( $rssUrl, $this->_url );
          $rssFeed = UrlUtil::GetUrlContents( $rssUrl );
-         $siteIndexItemsAry = SiteSyndication::parseRssFeed( $rssFeed );
+         $siteIndexItemsAry = SiteSyndication::ParseRssFeed( $rssFeed );
       }
 
-      $atomUrl = $this->getAtomFeedUrl();
+      $atomUrl = $this->GetAtomFeedUrl();
       if ( !is_null( $atomUrl ) ) {
-         $atomUrl = UrlUtil::ensureFullUrl( $atomUrl, $this->_url );
+         $atomUrl = UrlUtil::EnsureFullUrl( $atomUrl, $this->_url );
          $atomFeed = UrlUtil::GetUrlContents( $atomUrl );
-         $siteIndexItemsAry = SiteSyndication::parseAtomFeed( $atomFeed );
+         $siteIndexItemsAry = SiteSyndication::ParseAtomFeed( $atomFeed );
       }
 
       return $siteIndexItemsAry;
-   } // end getSiteIndexItems()
+   } // end GetSiteIndexItems()
 
    /**
     * Locate the FIRST RSS URL in the page and return it
     * @return URL on success, NULL otherwise
     */
-   public function getRssFeedUrl()
+   public function GetRssFeedUrl()
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
 
@@ -71,13 +71,13 @@ class SiteSyndication
             || $elements->item( 0 )->getAttribute( 'href' ) == NULL )
       )
          return $elements->item( 0 )->getAttribute( 'href' );
-   } // end getRssFeedUrl()
+   } // end GetRssFeedUrl()
 
    /**
     * Locate the FIRST Atom URL in the page and return it
     * @return URL on success, NULL otherwise
     */
-   public function getAtomFeedUrl()
+   public function GetAtomFeedUrl()
    {
       $elements = $this->_xPath->query( "/html/head/link[@type='application/atom+xml']" );
 
@@ -87,9 +87,9 @@ class SiteSyndication
       )
 
          return $elements->item( 0 )->getAttribute( 'href' );
-   } // end getAtomFeedUrl()
+   } // end GetAtomFeedUrl()
 
-   public function parseAtomFeed( $atomXml )
+   public function ParseAtomFeed( $atomXml )
    {
       // parse the xml into an array
       $xmlParser = xml_parser_create();
@@ -121,7 +121,7 @@ class SiteSyndication
                break;
             case "LINK":
                $url = $values[ $i ]['attributes']['HREF'];
-               $url = UrlUtil::ensureFullUrl( $url, $this->_url );
+               $url = UrlUtil::EnsureFullUrl( $url, $this->_url );
                // encode the url for easy passing through GET later
                $url = StringUtil::CleanWebEncode( $url );
                break;
@@ -145,7 +145,7 @@ class SiteSyndication
       }
 
       return $siteItems;
-   } // end parseAtomFeed()
+   } // end ParseAtomFeed()
 
    /**
     * Parses RSS (v2?) XML for the following: TITLE, DESCRIPTION, LINK, and stores
@@ -158,7 +158,7 @@ class SiteSyndication
     *
     * @return SiteIndexItem[]
     */
-   public function parseRssFeed( $rssXml )
+   public function ParseRssFeed( $rssXml )
    {
       // parse the xml into an array
       $xmlParser = xml_parser_create();
@@ -182,7 +182,7 @@ class SiteSyndication
                break;
             case "LINK":
                $url = $values[ $i ]['value'];
-               $url = UrlUtil::ensureFullUrl( $url, $this->_url );
+               $url = UrlUtil::EnsureFullUrl( $url, $this->_url );
                // encode the url for easy passing through GET later
                $url = StringUtil::CleanWebEncode( $url );
                break;
@@ -195,6 +195,6 @@ class SiteSyndication
       }
 
       return $siteItems;
-   } // end parseRssFeed()
+   } // end ParseRssFeed()
 } // end SiteSyndication()
 ?>

@@ -14,7 +14,7 @@ class UrlUtil
     *
     * @return URL
     */
-   public static function ensureFullUrl( $urlPart, $baseUrl )
+   public static function EnsureFullUrl( $urlPart, $baseUrl )
    {
       if ( empty( $urlPart ) )
          throw new InvalidArgumentException( __METHOD__ . ':$urlPart cannot be null or empty' );
@@ -28,7 +28,7 @@ class UrlUtil
          $returnValue = $baseUrl . $urlPart;
 
       return $returnValue;
-   } // end ensureFullUrl()
+   } // end EnsureFullUrl()
 
    /**
     * Use fopen to make a connection to the URL passed into the function, read
@@ -38,7 +38,7 @@ class UrlUtil
     *
     * @returns string site contents
     */
-   public static function getUrlContents( $url )
+   public static function GetUrlContents( $url )
    {
       if ( empty( $url ) )
          throw new InvalidArgumentException( __METHOD__ . ': $url cannot be null or empty' );
@@ -54,5 +54,5 @@ class UrlUtil
       fclose( $fileHandle );
 
       return $fileContents;
-   } // end getUrlContents()
+   } // end GetUrlContents()
 } // end UrlUtils
