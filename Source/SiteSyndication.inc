@@ -2,6 +2,9 @@
 require_once( './SiteIndexItem.inc' );
 require_once( './UrlUtil.inc' );
 
+define( 'ATOM_FEED_XPATH', "/html/head/link[@type='application/atom+xml']" );
+define( 'RSS_FEED_XPATH', "/html/head/link[@type='application/rss+xml']" );
+
 class SiteSyndication
 {
    private $_url;
@@ -41,14 +44,14 @@ class SiteSyndication
    {
       $siteIndexItemsAry = NULL;
 
-      $rssUrl = $this->GetRssFeedUrl();
+      $rssUrl = $this->GetSyndicationUrl( RSS_FEED_XPATH );
       if ( !is_null( $rssUrl ) ) {
          $rssUrl = UrlUtil::EnsureFullUrl( $rssUrl, $this->_url );
          $rssFeed = UrlUtil::GetUrlContents( $rssUrl );
          $siteIndexItemsAry = SiteSyndication::ParseRssFeed( $rssFeed );
       }
 
-      $atomUrl = $this->GetAtomFeedUrl();
+      $atomUrl = $this->GetSyndicationUrl( ATOM_FEED_XPATH );
       if ( !is_null( $atomUrl ) ) {
          $atomUrl = UrlUtil::EnsureFullUrl( $atomUrl, $this->_url );
          $atomFeed = UrlUtil::GetUrlContents( $atomUrl );
@@ -59,35 +62,22 @@ class SiteSyndication
    } // end GetSiteIndexItems()
 
    /**
-    * Locate the FIRST RSS URL in the page and return it
+    * Locate the FIRST URL for a given xpath query in the page and return it
+    *
+    * @param $xpathQuery
+    *
     * @return URL on success, NULL otherwise
     */
-   public function GetRssFeedUrl()
+   public function GetSyndicationUrl( $xpathQuery )
    {
-      $elements = $this->_xPath->query( "/html/head/link[@type='application/rss+xml']" );
+      $elements = $this->_xPath->query( $xpathQuery );
 
       if ( $elements->length > 0
          && ( $elements->item( 0 )->getAttribute( 'href' ) != ''
             || $elements->item( 0 )->getAttribute( 'href' ) == NULL )
       )
          return $elements->item( 0 )->getAttribute( 'href' );
-   } // end GetRssFeedUrl()
-
-   /**
-    * Locate the FIRST Atom URL in the page and return it
-    * @return URL on success, NULL otherwise
-    */
-   public function GetAtomFeedUrl()
-   {
-      $elements = $this->_xPath->query( "/html/head/link[@type='application/atom+xml']" );
-
-      if ( $elements->length > 0
-         && ( $elements->item( 0 )->getAttribute( 'href' ) != ''
-            || $elements->item( 0 )->getAttribute( 'href' ) == NULL )
-      )
-
-         return $elements->item( 0 )->getAttribute( 'href' );
-   } // end GetAtomFeedUrl()
+   } // end GetSyndicationUrl()
 
    /**
     * Parses Atom XML for the elements which can be used for a title, description and link,
@@ -208,11 +198,11 @@ class SiteSyndication
       $xmlParser = xml_parser_create();
       xml_parser_set_option( $xmlParser, XML_OPTION_SKIP_WHITE, 1 );
       xml_parser_set_option( $xmlParser, XML_OPTION_CASE_FOLDING, 1 );
-      xml_parse_into_struct( $xmlParser, $xml, $values );
+      xml_parse_into_struct( $xmlParser, $xml, $output );
       xml_parse( $xmlParser, $xml );
       xml_parser_free( $xmlParser );
 
-      return $values;
+      return $output;
    }
 } // end SiteSyndication()
 ?>

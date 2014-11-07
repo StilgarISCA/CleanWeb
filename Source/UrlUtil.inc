@@ -16,8 +16,7 @@ class UrlUtil
     */
    public static function EnsureFullUrl( $urlPart, $baseUrl )
    {
-      if ( empty( $urlPart ) )
-         throw new InvalidArgumentException( __METHOD__ . ':$urlPart cannot be null or empty' );
+      // a url part could be null, and that should be okay
 
       if ( empty( $baseUrl ) )
          throw new InvalidArgumentException( __METHOD__ . ':$baseUrl cannot be null or empty' );
