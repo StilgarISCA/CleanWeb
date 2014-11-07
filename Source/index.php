@@ -14,8 +14,8 @@
 // http://php.net/manual/en/timezones.php
 date_default_timezone_set( 'America/Detroit' );
 
-define( "HOST_DOMAIN", 'http://' . $_SERVER['SERVER_NAME'] );
-define( "TARGET_RSS_FEED", "http://news.google.com/?output=rss" );
+define( 'HOST_DOMAIN', 'http://' . $_SERVER['SERVER_NAME'] );
+define( 'DEFAULT_BASE_URL', 'http://news.google.com' );
 
 require_once( './SiteSyndication.inc' );
 require_once( './SiteIndexItem.inc' );
@@ -39,8 +39,8 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    }
    print_homepage( $rss_data_ary );
 } else {
-   $rss_feed = UrlUtil::GetUrlContents( TARGET_RSS_FEED );
-   $rss_data_ary = SiteSyndication::parseRssFeed( $rss_feed );
+   $siteSyndication = new SiteSyndication( DEFAULT_BASE_URL );
+   $rss_data_ary = $siteSyndication->getSiteIndexItems();
    print_homepage( $rss_data_ary );
 }
 exit();
