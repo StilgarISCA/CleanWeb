@@ -20,7 +20,7 @@ class SiteSyndication
          throw new InvalidArgumentException( __METHOD__ . ': $url cannot be null, empty or whitespace' );
 
       $this->_url = $url;
-      $this->_pageDom = $this->LoadPageDom( $this->_url );
+      $this->_pageDom = self::LoadPageDom( $this->_url );
       $this->_xPath = new DomXPath( $this->_pageDom );
    } // end ctor
 
@@ -89,38 +89,43 @@ class SiteSyndication
          return $elements->item( 0 )->getAttribute( 'href' );
    } // end GetAtomFeedUrl()
 
+   /**
+    * Parses Atom XML for the elements which can be used for a title, description and link,
+    * and stores that information within an array of objects which is then returned.
+    *
+    * HTML is stripped from the description, and the link is encoded using
+    * urlencode and base64.
+    *
+    * @param XML $atomXml XML from RSS feed
+    *
+    * @return SiteIndexItem[]
+    */
    public function ParseAtomFeed( $atomXml )
    {
-      // parse the xml into an array
-      $xmlParser = xml_parser_create();
-      xml_parser_set_option( $xmlParser, XML_OPTION_SKIP_WHITE, 1 );
-      xml_parser_set_option( $xmlParser, XML_OPTION_CASE_FOLDING, 1 );
-      xml_parse_into_struct( $xmlParser, $atomXml, $values );
-      xml_parse( $xmlParser, $atomXml );
-      xml_parser_free( $xmlParser );
+      $atomFeedAry = self::XmlToArray( $atomXml );
 
       // loop through array pulling/formatting desired data, and throw into array
       $title = $description = $url = NULL;
       $curCount = 0;
-      for ( $i = 0; $i < sizeof( $values ); $i++ ) {
-         switch ( $values[ $i ]['tag'] ) {
+      for ( $i = 0; $i < sizeof( $atomFeedAry ); $i++ ) {
+         switch ( $atomFeedAry[ $i ]['tag'] ) {
             case "TITLE":
-               $title = $values[ $i ]['value'];
+               $title = $atomFeedAry[ $i ]['value'];
                break;
             case "SUBTITLE":
                // strip out any HTML/javascript garbage contaminating the feeds
-               $subtitle = strip_tags( $values[ $i ]['value'] );
+               $subtitle = strip_tags( $atomFeedAry[ $i ]['value'] );
                break;
             case "SUMMARY":
                // strip out any HTML/javascript garbage contaminating the feeds
-               $summary = strip_tags( $values[ $i ]['value'] );
+               $summary = strip_tags( $atomFeedAry[ $i ]['value'] );
                break;
             case "CONTENT":
                // strip out any HTML/javascript garbage contaminating the feeds
-               $content = strip_tags( $values[ $i ]['value'] );
+               $content = strip_tags( $atomFeedAry[ $i ]['value'] );
                break;
             case "LINK":
-               $url = $values[ $i ]['attributes']['HREF'];
+               $url = $atomFeedAry[ $i ]['attributes']['HREF'];
                $url = UrlUtil::EnsureFullUrl( $url, $this->_url );
                // encode the url for easy passing through GET later
                $url = StringUtil::CleanWebEncode( $url );
@@ -160,28 +165,22 @@ class SiteSyndication
     */
    public function ParseRssFeed( $rssXml )
    {
-      // parse the xml into an array
-      $xmlParser = xml_parser_create();
-      xml_parser_set_option( $xmlParser, XML_OPTION_SKIP_WHITE, 1 );
-      xml_parser_set_option( $xmlParser, XML_OPTION_CASE_FOLDING, 1 );
-      xml_parse_into_struct( $xmlParser, $rssXml, $values );
-      xml_parse( $xmlParser, $rssXml );
-      xml_parser_free( $xmlParser );
+      $rssFeedAry = self::XmlToArray( $rssXml );
 
       // loop through array pulling/formatting desired data, and throw into array
       $title = $description = $url = NULL;
       $curCount = 0;
-      for ( $i = 0; $i < sizeof( $values ); $i++ ) {
-         switch ( $values[ $i ]['tag'] ) {
+      for ( $i = 0; $i < sizeof( $rssFeedAry ); $i++ ) {
+         switch ( $rssFeedAry[ $i ]['tag'] ) {
             case "TITLE":
-               $title = $values[ $i ]['value'];
+               $title = $rssFeedAry[ $i ]['value'];
                break;
             case "DESCRIPTION":
                // strip out any HTML/javascript garbage contaminating the feeds
-               $description = strip_tags( $values[ $i ]['value'] );
+               $description = strip_tags( $rssFeedAry[ $i ]['value'] );
                break;
             case "LINK":
-               $url = $values[ $i ]['value'];
+               $url = $rssFeedAry[ $i ]['value'];
                $url = UrlUtil::EnsureFullUrl( $url, $this->_url );
                // encode the url for easy passing through GET later
                $url = StringUtil::CleanWebEncode( $url );
@@ -196,5 +195,24 @@ class SiteSyndication
 
       return $siteItems;
    } // end ParseRssFeed()
+
+   /**
+    * Converts XML into an array
+    *
+    * @param $xml
+    *
+    * @return mixed[]
+    */
+   private static function XmlToArray( $xml )
+   {
+      $xmlParser = xml_parser_create();
+      xml_parser_set_option( $xmlParser, XML_OPTION_SKIP_WHITE, 1 );
+      xml_parser_set_option( $xmlParser, XML_OPTION_CASE_FOLDING, 1 );
+      xml_parse_into_struct( $xmlParser, $xml, $values );
+      xml_parse( $xmlParser, $xml );
+      xml_parser_free( $xmlParser );
+
+      return $values;
+   }
 } // end SiteSyndication()
 ?>
