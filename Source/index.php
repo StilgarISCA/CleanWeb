@@ -20,6 +20,7 @@ define( 'DEFAULT_BASE_URL', 'http://news.google.com' );
 require_once( './SiteSyndication.inc' );
 require_once( './SiteIndexItem.inc' );
 require_once( './StringUtil.inc' );
+require_once( './Template.inc' );
 require_once( './UrlUtil.inc' );
 
 if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
@@ -172,10 +173,18 @@ function print_homepage( $siteIndexItemArray )
 {
    // Assign page title
    if ( strlen( $siteIndexItemArray[0]->title ) > 0 )
-      $feed_title = $siteIndexItemArray[0]->title;
+      $title = $siteIndexItemArray[0]->title;
    else
-      $feed_title = "RSS Feed Title Unknown";
+      $title = "RSS Feed Title Unknown";
 
+   // Setup template
+   $template = new Template();
+   $template->AddValue( 'tpl_Title', $title );
+
+   // Display template
+   print $template->Process( './homepage.tpl' );
+
+/*
    // Assign page description
    if ( strlen( $siteIndexItemArray[0]->description ) > 0 )
       $feed_description = $siteIndexItemArray[0]->description;
@@ -214,7 +223,7 @@ function print_homepage( $siteIndexItemArray )
    print_footer();
    print "</body>\n";
    print "</html>\n";
-
+*/
    return;
 } // end function print_homepage()
 
