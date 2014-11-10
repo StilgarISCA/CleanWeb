@@ -26,9 +26,9 @@ class Template
     *
     * Stores template names and values in the internal associative array.
     *************************************************************************/
-   public function AddValue( $variable, $value )
+   public function AddValue( $key, $value )
    {
-      $this->_templateValues[ $variable ] = $value;
+      $this->_templateValues[ $key ] = $value;
    } // end method AddValue()
 
    /*************************************************************************
@@ -39,9 +39,9 @@ class Template
     * Stores template names and values in the internal associative array
     * BY REFERENCE, this is useful for storing things like objects and arrays.
     *************************************************************************/
-   public function AddValueByRef( $variable, &$value )
+   public function AddValueByRef( $key, &$value )
    {
-      $this->_templateValues[ $variable ] = &$value;
+      $this->_templateValues[ $key ] = &$value;
    } // end method AddValueByRef()
 
    /*************************************************************************
@@ -54,8 +54,8 @@ class Template
     *************************************************************************/
    public function Process( $template )
    {
-      foreach ( $this->_templateValues as $variable => $value )
-         $$variable = $value;
+      foreach ( $this->_templateValues as $key => $value )
+         $$key = $value;
       ob_start();
       require( $template );
       $content = ob_get_contents();
