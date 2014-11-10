@@ -146,22 +146,6 @@ function print_fixed_links( $encoded_link )
 } // end print_fixed_links()
 
 /***************************************************************************
- * Function: print_css()
- * Accepts: nothing
- * Returns: nothing
- *
- * Description:
- * Prints text/css
- ***************************************************************************/
-function print_css()
-{
-   print "<style type='text/css'>\n";
-   print "</style>\n";
-
-   return;
-} // end print_css()
-
-/***************************************************************************
  * Function: print_footer()
  * Accepts: nothing
  * Returns: nothing
@@ -204,7 +188,6 @@ function print_homepage( $siteIndexItemArray )
    print "  <title>$feed_title</title>\n";
    print "  <meta name=\"description\" content=\"$feed_description\">\n";
    print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print_css();
    print "</head>\n";
    print "<body>\n";
 
