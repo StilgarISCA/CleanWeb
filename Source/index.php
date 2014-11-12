@@ -171,15 +171,23 @@ function print_footer()
  ***************************************************************************/
 function print_homepage( $siteIndexItemArray )
 {
-   // Assign page title
    if ( strlen( $siteIndexItemArray[0]->title ) > 0 )
       $title = $siteIndexItemArray[0]->title;
    else
       $title = "RSS Feed Title Unknown";
 
+   if ( strlen( $siteIndexItemArray[0]->description ) > 0 )
+      $description = $siteIndexItemArray[0]->description;
+   else
+      $description = "RSS Feed Description Unknown";
+
+   $date = date( 'M j, Y' );
+
    // Setup template
    $template = new Template();
    $template->AddValue( 'tpl_Title', $title );
+   $template->AddValue( 'tpl_Description', $description );
+   $template->AddValue( 'tpl_Date', $date );
 
    // Display template
    print $template->Process( './homepage.tpl' );
