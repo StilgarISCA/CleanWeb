@@ -183,55 +183,30 @@ function print_homepage( $siteIndexItemArray )
 
    $date = date( 'M j, Y' );
 
+   if ( empty( $siteIndexItemArray ) ) {
+      // Set a default value if there are no items (content)
+      $siteIndexItemArray = array();
+      $siteIndexItemArray[0] = new SiteIndexItem( 'No Content', '', '' );
+   }
+   else {
+       // Skip the first element of the array (link back to site)
+       unset( $siteIndexItemArray[0] );
+       
+       // remove any blank entries
+       $siteIndexItemArray = array_filter( $siteIndexItemArray, function( $x ) {
+           return !empty( $x->title ); } );
+   }
+
    // Setup template
    $template = new Template();
    $template->AddValue( 'tpl_Title', $title );
    $template->AddValue( 'tpl_Description', $description );
    $template->AddValue( 'tpl_Date', $date );
+   $template->AddValueByRef( 'tpl_SiteIndexItemArray', $siteIndexItemArray );
 
    // Display template
    print $template->Process( './homepage.tpl' );
 
-/*
-   // Assign page description
-   if ( strlen( $siteIndexItemArray[0]->description ) > 0 )
-      $feed_description = $siteIndexItemArray[0]->description;
-   else
-      $feed_description = "RSS Feed Description Unknown";
-
-
-   print "<html>\n";
-   print "<head>\n";
-   print "  <title>$feed_title</title>\n";
-   print "  <meta name=\"description\" content=\"$feed_description\">\n";
-   print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print "</head>\n";
-   print "<body>\n";
-
-   print_url_form();
-
-   print "<h1>$feed_title</h1>\n";
-   print "<p>$feed_description</p>\n";
-   print "<p style=\"font-style: italic;\">Date: " . date( "M j, Y" ) . "</p>\n";
-   print "<hr>\n";
-
-   // Show the contents of the page
-   // Note: start at index 1 because the first two entries are links back to the feeds homepage and whatnot
-   for ( $i = 1; $i < sizeof( $siteIndexItemArray ); $i++ ) {
-      if ( empty( $siteIndexItemArray[ $i ]->title ) )
-         continue;
-      print "<h2>" . $siteIndexItemArray[ $i ]->title . "</h2>\n";
-      print "<p>" . $siteIndexItemArray[ $i ]->description;
-      if ( strlen( $siteIndexItemArray[ $i ]->url ) > 0 ) {
-         print " <a href=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . StringUtil::CleanWebEncode( $siteIndexItemArray[ $i ]->title ) . "&page=" . $siteIndexItemArray[ $i ]->url . "\">Full Story.</a>";
-      }
-      print "</p>\n";
-   }
-
-   print_footer();
-   print "</body>\n";
-   print "</html>\n";
-*/
    return;
 } // end function print_homepage()
 
@@ -252,7 +227,6 @@ function print_single_page( $html, $title, $additional_pages )
    print "<head>\n";
    print "  <title>$title</title>\n";
    print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print_css();
    print "</head>\n";
    print "<body>\n";
 
