@@ -27,9 +27,10 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $htmlPage = UrlUtil::GetUrlContents( $url );
    $cleanedPage = clean_html_page( $htmlPage );
-   $additionalPages = find_additional_pages( $htmlPage );
-   print_single_page( $cleanedPage, $_GET['title'], $additionalPages );
-} elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
+   $title = StringUtil::CleanWebDecode( $_GET['title'] );
+   renderSinglePage( $cleanedPage, $title );
+}
+elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $siteSyndication = new SiteSyndication( $url );
    $rssDataAry = $siteSyndication->GetSiteIndexItems();
@@ -38,40 +39,16 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
       print "<h1>Site syndication feed not found</h1><p>URL: $url";
       exit();
    }
-   print_homepage( $rssDataAry );
-} else {
+   renderHomepage( $rssDataAry );
+}
+else {
    $siteSyndication = new SiteSyndication( DEFAULT_BASE_URL );
    $rssDataAry = $siteSyndication->GetSiteIndexItems();
-   print_homepage( $rssDataAry );
+   renderHomepage( $rssDataAry );
 }
 exit();
 
 /********************************* End Main *******************************/
-
-// any uncommented functions should be considered experimental
-
-function find_additional_pages( $html )
-{
-   $url = '';
-
-   $domObj = new domDocument();
-
-   @$domObj->loadHTML( $html );
-   $domObj->preserveWhiteSpace = false;
-
-   $anchors = $domObj->getElementsByTagName( 'a' );
-
-   foreach ( $anchors as $anchor ) {
-      //$url = "Additional content was found finish implementing next page";
-      if ( stripos( $anchor->nodeValue, 'next' ) !== false ) {
-         $value = $anchor->getAttribute( 'href' );
-         $valueToo = $anchor->nodeValue;
-         $url = "Next Page Detected as: <a href=\"$value\">$valueToo</a>";
-      }
-   }
-
-   return $url;
-} // end find_additional_pages()
 
 /***************************************************************************
  * Function: clean_html_page( html )
@@ -147,14 +124,14 @@ function print_fixed_links( $encoded_link )
 } // end print_fixed_links()
 
 /***************************************************************************
- * Function: print_homepage( ary[][] )
+ * Function: renderHomepage( SiteIndexItem[] )
  * Accepts: array of SiteIndexItem objects
  * Returns: nothing
  *
  * Description:
- * Prints data in object array as a simple homepage.
- ***************************************************************************/
-function print_homepage( $siteIndexItemArray )
+ * Render a template-based homepage from provided SiteIndexItems.
+***************************************************************************/
+function renderHomepage( $siteIndexItemArray )
 {
    if ( strlen( $siteIndexItemArray[0]->title ) > 0 )
       $title = $siteIndexItemArray[0]->title;
@@ -193,22 +170,19 @@ function print_homepage( $siteIndexItemArray )
    print $template->Process( './Homepage.tpl' );
 
    return;
-} // end function print_homepage()
+} // end function renderHomepage()
 
 /***************************************************************************
- * Function: print_single_page( str, str, str )
- * Accepts: html body to print, base64 urlencoded page title, links to
- * additional pages
+ * Function: renderSinglePage( str, str)
+ * Accepts: html body to print, page title
  * Returns: nothing
  *
  * Description:
  * Prints data passed in as a simple web page.
  ***************************************************************************/
-function print_single_page( $html, $title, $additional_pages )
+function renderSinglePage( $html, $title )
 {
-   if ( strlen( $title ) > 0 )
-      $title = StringUtil::CleanWebDecode( $title );
-   else
+   if ( empty( $title ) )
       $title = "Unknown page title";
 
    // Setup template
@@ -220,7 +194,7 @@ function print_single_page( $html, $title, $additional_pages )
    print $template->Process( './SinglePage.tpl' );
 
    return;
-} // end function print_single_page()
+} // end function renderSinglePage()
 
 /***************************************************************************
  * Function: print_url_form()
