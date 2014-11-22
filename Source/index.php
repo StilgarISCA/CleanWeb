@@ -190,7 +190,7 @@ function print_homepage( $siteIndexItemArray )
    $template->AddValueByRef( 'tpl_SiteIndexItemArray', $siteIndexItemArray );
 
    // Display template
-   print $template->Process( './homepage.tpl' );
+   print $template->Process( './Homepage.tpl' );
 
    return;
 } // end function print_homepage()
