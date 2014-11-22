@@ -206,23 +206,18 @@ function print_homepage( $siteIndexItemArray )
  ***************************************************************************/
 function print_single_page( $html, $title, $additional_pages )
 {
-   $title = StringUtil::CleanWebDecode( $title );
+   if ( strlen( $title ) > 0 )
+      $title = StringUtil::CleanWebDecode( $title );
+   else
+      $title = "Unknown page title";
 
-   print "<html>\n";
-   print "<head>\n";
-   print "  <title>$title</title>\n";
-   print "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
-   print "</head>\n";
-   print "<body>\n";
+   // Setup template
+   $template = new Template();
+   $template->AddValue( 'tpl_Title', $title );
+   $template->AddValue( 'tpl_PageContent', $html );
 
-   print_url_form();
-   print_fixed_links( $_GET['page'] );
-
-   print $html;
-   print $additional_pages;
-
-   print "</body>\n";
-   print "</html>\n";
+   // Display template
+   print $template->Process( './SinglePage.tpl' );
 
    return;
 } // end function print_single_page()
