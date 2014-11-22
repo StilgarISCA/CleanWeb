@@ -24,13 +24,15 @@ require_once( './Template.inc' );
 require_once( './UrlUtil.inc' );
 
 if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
+   // Get a single page
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $htmlPage = UrlUtil::GetUrlContents( $url );
    $cleanedPage = clean_html_page( $htmlPage );
    $title = StringUtil::CleanWebDecode( $_GET['title'] );
-   renderSinglePage( $cleanedPage, $title );
+   renderSinglePage( $title, $cleanedPage );
 }
 elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
+   // Find SiteSyndication feed and build up a page
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $siteSyndication = new SiteSyndication( $url );
    $rssDataAry = $siteSyndication->GetSiteIndexItems();
@@ -42,6 +44,7 @@ elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
    renderHomepage( $rssDataAry );
 }
 else {
+   // If no arguments, build up a page from a default url
    $siteSyndication = new SiteSyndication( DEFAULT_BASE_URL );
    $rssDataAry = $siteSyndication->GetSiteIndexItems();
    renderHomepage( $rssDataAry );
@@ -174,13 +177,13 @@ function renderHomepage( $siteIndexItemArray )
 
 /***************************************************************************
  * Function: renderSinglePage( str, str)
- * Accepts: html body to print, page title
+ * Accepts: page title, html body to print
  * Returns: nothing
  *
  * Description:
- * Prints data passed in as a simple web page.
+ * Render a template-based page from provided data
  ***************************************************************************/
-function renderSinglePage( $html, $title )
+function renderSinglePage( $title, $html )
 {
    if ( empty( $title ) )
       $title = "Unknown page title";
