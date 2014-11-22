@@ -147,21 +147,6 @@ function print_fixed_links( $encoded_link )
 } // end print_fixed_links()
 
 /***************************************************************************
- * Function: print_footer()
- * Accepts: nothing
- * Returns: nothing
- *
- * Description:
- * Prints text/html suitable for use as page footer
- ***************************************************************************/
-function print_footer()
-{
-   print "\n";
-
-   return;
-} // end print_footer()
-
-/***************************************************************************
  * Function: print_homepage( ary[][] )
  * Accepts: array of SiteIndexItem objects
  * Returns: nothing
@@ -191,7 +176,7 @@ function print_homepage( $siteIndexItemArray )
    else {
        // Skip the first element of the array (link back to site)
        unset( $siteIndexItemArray[0] );
-       
+
        // remove any blank entries
        $siteIndexItemArray = array_filter( $siteIndexItemArray, function( $x ) {
            return !empty( $x->title ); } );
@@ -236,7 +221,6 @@ function print_single_page( $html, $title, $additional_pages )
    print $html;
    print $additional_pages;
 
-   print_footer();
    print "</body>\n";
    print "</html>\n";
 
