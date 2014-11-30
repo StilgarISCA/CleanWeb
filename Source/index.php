@@ -110,23 +110,6 @@ function clean_html_page( $html )
 } // end function clean_html_page()
 
 /***************************************************************************
- * Function: print_fixed_links( str )
- * Accepts: encoded url of the original page
- * Returns: nothing
- *
- * Description:
- * Prints links for viewing the page with the old version of the program and
- * also a link to the original, uncleaned version of the page.
- ***************************************************************************/
-function print_fixed_links( $encoded_link )
-{
-   // TODO: Once this is working remove the link to the old cleaner
-   print "<p><a target=\"_new\" href=\"" . HOST_DOMAIN . "/rss2avantgo.php?perform=getpage&page=$encoded_link\">View with previous version of program</a> | <a target=\"_new\" href=\"" . StringUtil::CleanWebDecode( $encoded_link ) . "\"\">View Original</a></p>";
-
-   return;
-} // end print_fixed_links()
-
-/***************************************************************************
  * Function: renderHomepage( SiteIndexItem[] )
  * Accepts: array of SiteIndexItem objects
  * Returns: nothing
