@@ -3,9 +3,16 @@
    <title><?=$tpl_Title ?></title>
    <meta name="description" content="<?=$tpl_Description ?>" />
    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <script src="PageRequest.js"></script>
 </head>
 <body>
-<!--print_url_form();-->
+
+<form name="loadcustom" method="GET" action="<?=HOST_DOMAIN ?><?=$_SERVER['PHP_SELF'] ?>\" onsubmit="doSubmit();">
+  <input type="text" name="page" />
+  <input type="hidden" name="perform" value="getrss" />
+  <input type="hidden" name="title" value="Dynamic Load" />
+  <input type="submit" value="submit">
+</form>
 
 <h1><?=$tpl_Title ?></h1>
 <p><?=$tpl_Description ?></p>
@@ -16,11 +23,6 @@
 <!-- TODO: Move this URL logic out of the view -->
 <p><?=$siteItem->description ?> <a href="<?=HOST_DOMAIN . $_SERVER['PHP_SELF'] ?>?perform=getpage&title=<?=StringUtil::CleanWebEncode( $siteItem->title ) ?>&page=<?=$siteItem->url ?>">Full story.</a></p>
 <?php endforeach; ?>
-<!--
-<h2>$siteIndexItemArray[ $i ]->title</h2>
-<p>$siteIndexItemArray[ $i ]->description
-   <a href="HOST_DOMAIN . $_SERVER['PHP_SELF'] . "?perform=getpage&title=" . StringUtil::CleanWebEncode( $siteIndexItemArray[ $i ]->title ) . "&page=" . $siteIndexItemArray[ $i ]->url . ">Full Story.</a>
-</p>
--->
+
 </body>
 </html>

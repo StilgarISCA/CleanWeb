@@ -197,33 +197,5 @@ function renderSinglePage( $title, $html )
    print $template->Process( './SinglePage.tpl' );
 
    return;
-} // end function renderSinglePage()
-
-/***************************************************************************
- * Function: print_url_form()
- * Accepts: nothing
- * Returns: nothing
- *
- * Description:
- * Prints web form to allow submissions of other urls to this script
- ***************************************************************************/
-function print_url_form()
-{
-   print "<script type=\"text/javascript\">\n";
-   print "  function doSubmit() {\n";
-   print "    document.loadcustom.page.value = window.btoa( encodeURI( document.loadcustom.page.value ) );\n";
-   print "    return true;\n";
-   print "  }\n";
-   print "</script>\n";
-
-   print "<form name=\"loadcustom\" method=\"GET\" action=\"" . HOST_DOMAIN . $_SERVER['PHP_SELF'] . "\" onsubmit=\"doSubmit();\">\n";
-   print "  <input type=\"text\" name=\"page\" />\n";
-#   print "  <input type=\"hidden\" name=\"perform\" value=\"getpage\" />\n";
-   print "  <input type=\"hidden\" name=\"perform\" value=\"getrss\" />\n";
-   print "  <input type=\"hidden\" name=\"title\" value=\"Dynamic Load\" />\n";
-   print "  <input type=\"submit\" value=\"submit\">\n";
-   print "</form>\n";
-
-   return;
-} // end print_url_form()
+} // end function renderSingl
 ?>
