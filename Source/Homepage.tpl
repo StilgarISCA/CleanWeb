@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<form name="loadcustom" method="GET" action="<?=HOST_DOMAIN ?><?=$_SERVER['PHP_SELF'] ?>\" onsubmit="doSubmit();">
+<form name="loadcustom" method="GET" action="<?=HOST_DOMAIN ?><?=$_SERVER['PHP_SELF'] ?>/" onsubmit="doSubmit();">
   <input type="text" name="page" />
   <input type="hidden" name="perform" value="getrss" />
   <input type="hidden" name="title" value="Dynamic Load" />

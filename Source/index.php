@@ -29,7 +29,7 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    $htmlPage = UrlUtil::GetUrlContents( $url );
    $cleanedPage = clean_html_page( $htmlPage );
    $title = StringUtil::CleanWebDecode( $_GET['title'] );
-   renderSinglePage( $title, $cleanedPage );
+   renderSinglePage( $title, $cleanedPage, $url );
 }
 elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
    // Find SiteSyndication feed and build up a page
@@ -176,20 +176,21 @@ function renderHomepage( $siteIndexItemArray )
 } // end function renderHomepage()
 
 /***************************************************************************
- * Function: renderSinglePage( str, str)
- * Accepts: page title, html body to print
+ * Function: renderSinglePage( str, html, url )
+ * Accepts: page title, html body to print, original url (not encoded)
  * Returns: nothing
  *
  * Description:
  * Render a template-based page from provided data
  ***************************************************************************/
-function renderSinglePage( $title, $html )
+function renderSinglePage( $title, $html, $url )
 {
    if ( empty( $title ) )
       $title = "Unknown page title";
 
    // Setup template
    $template = new Template();
+   $template->AddValue( 'tpl_OriginalUrl', $url );
    $template->AddValue( 'tpl_Title', $title );
    $template->AddValue( 'tpl_PageContent', $html );
 
