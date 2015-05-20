@@ -24,7 +24,7 @@
    </form>
    <div class="row">
       <div class="sixteen columns">
-         <p><a target="_new" href="<?=$tpl_OriginalUrl ?>">View Original</a></p>
+         <p><a class="button" target="_new" href="<?=$tpl_OriginalUrl ?>">View Original</a></p>
       </div>
    </div>
    <div class="row">
