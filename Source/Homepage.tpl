@@ -4,9 +4,9 @@
    <meta name="description" content="<?=$tpl_Description ?>" />
    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
    <script src="PageRequest.js"></script>
-   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-   <link rel="stylesheet" href="css/normalize.css">
-   <link rel="stylesheet" href="css/skeleton.css">
+   <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css" />
+   <link rel="stylesheet" href="<?=HOST_DOMAIN ?>/cleanweb/css/normalize.css" />
+   <link rel="stylesheet" href="<?=HOST_DOMAIN ?>/cleanweb/css/skeleton.css" />
 </head>
 <body>
 <div class="container">
