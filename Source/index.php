@@ -27,7 +27,7 @@ if ( isset( $_GET['perform'] ) && $_GET['perform'] == "getpage" ) {
    // Get a single page
    $url = StringUtil::CleanWebDecode( $_GET['page'] );
    $htmlPage = UrlUtil::GetUrlContents( $url );
-   $cleanedPage = clean_html_page( $htmlPage );
+   $cleanedPage = clean_html_page( $htmlPage, false );
    $title = StringUtil::CleanWebDecode( $_GET['title'] );
    renderSinglePage( $title, $cleanedPage, $url );
 }
@@ -38,8 +38,10 @@ elseif ( isset( $_GET['perform'] ) && $_GET['perform'] == "getrss" ) {
    $rssDataAry = $siteSyndication->GetSiteIndexItems();
    if ( is_null( $rssDataAry ) ) {
       $url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true );
-      print "<h1>Site syndication feed not found</h1><p>URL: $url";
-      exit();
+      print "<h1>Site syndication feed not found. Loading page.</h1><p>URL: $url";
+      $htmlPage = UrlUtil::GetUrlContents( $url );
+      $cleanedPage = clean_html_page( $htmlPage, true );
+      renderSinglePage( '', $cleanedPage, $url );
    }
    renderHomepage( $rssDataAry );
 }
@@ -54,15 +56,15 @@ exit();
 /********************************* End Main *******************************/
 
 /***************************************************************************
- * Function: clean_html_page( html )
- * Accepts: the page to be cleaned
+ * Function: clean_html_page( html, bool )
+ * Accepts: the page to be cleaned, show links if true, otherwise no
  * Returns: cleaned text
  *
  * Description:
  * Strip all the garbage out of a webpage and make it as plain-text as
  * possible.
  ***************************************************************************/
-function clean_html_page( $html )
+function clean_html_page( $html, $showLinks )
 {
    // Skip everything before first <h1
    $cleaned_page = substr( $html, stripos( $html, '<h1' ) );
@@ -81,7 +83,12 @@ function clean_html_page( $html )
       $cleaned_page = substr( $cleaned_page, 0, $end_at );
 
    // Strip all tags not specified
-   $cleaned_page = strip_tags( $cleaned_page, "<title><head><h1><h2><h3><h4><h5><h6><p><script><style><cite><strong><blockquote><address><b><i><u><em>" );
+   $tagsToLeave = '<title><head><h1><h2><h3><h4><h5><h6><p><script><style><cite><strong><blockquote><address><b><i><u><em>';
+   
+   if ( $showLinks )
+      $tagsToLeave .= '<a>';
+      
+   $cleaned_page = strip_tags( $cleaned_page, $tagsToLeave );
 
    // Now clean up the remaining tags
    $pattern = array(
